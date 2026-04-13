@@ -73,7 +73,58 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
 .neg-transporte{ --neg-color: #222B3D; --neg-mid: #9998A5; --neg-light: #D0E0EA; }
 
 /* TELA JOGO EQUIPE */
-#tela-jogo { background: var(--cinza-bg); }
+#tela-jogo { background: var(--cinza-bg); display: flex; flex-direction: column; }
+
+.jogo-body {
+  display: flex; flex: 1; overflow: hidden;
+}
+
+.jogo-main-area {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+}
+
+/* CHAT LATERAL */
+.chat-lateral {
+  width: 280px; min-width: 280px; background: #fff;
+  border-left: 1px solid var(--cinza-border);
+  display: flex; flex-direction: column;
+  height: calc(100vh - 52px); position: sticky; top: 52px;
+}
+
+.chat-lateral .chat-header {
+  padding: 12px 14px; border-bottom: 1px solid var(--cinza-border);
+  font-size: 12px; font-weight: 800; color: var(--cinza-muted);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  background: var(--neg-light, #FFF8F5);
+}
+
+.chat-lateral .chat-msgs {
+  flex: 1; overflow-y: auto; padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.chat-lateral .chat-input-row {
+  display: flex; gap: 6px; padding: 10px 14px;
+  border-top: 1px solid var(--cinza-border);
+}
+
+.chat-lateral .chat-input-row input {
+  flex: 1; border: 1px solid var(--cinza-border);
+  border-radius: var(--radius-sm); padding: 8px 10px;
+  font-family: var(--font-body); font-size: 13px; outline: none;
+}
+
+.chat-lateral .chat-input-row input:focus { border-color: var(--neg-color, #733909); }
+
+.chat-lateral .btn-chat-send {
+  background: var(--neg-color, #733909); color: #fff; border: none;
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .chat-lateral { display: none; }
+}
 
 .jogo-header {
   background: var(--neg-color, var(--principal-dark)); color: #fff;
@@ -406,17 +457,21 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
 
   <!-- AGUARDANDO INÍCIO -->
   <div class="aguardando" id="jogo-aguardando-inicio">
-    <div class="icone">⏳</div>
     <h2>Aguardando início...</h2>
     <p>O consultor vai iniciar o jogo em breve. Fique de olho!</p>
   </div>
 
   <!-- AGUARDANDO OUTROS -->
   <div class="aguardando" id="jogo-aguardando-rodada" style="display:none;">
-    <div class="icone">️</div>
     <h2>Investimentos enviados!</h2>
     <p>Aguardando os outros negócios confirmarem seus investimentos...</p>
   </div>
+
+  <!-- BODY COM LATERAL -->
+  <div class="jogo-body" id="jogo-body" style="display:none;">
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="jogo-main-area" id="jogo-main-area">
 
   <!-- VISÃO: LIDERANÇA -->
   <div class="jogo-content" id="visao-lideranca" style="display:none;">
@@ -486,16 +541,6 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
       <div id="votacao-status" style="font-size:13px;color:#FF5527;margin-top:8px;font-weight:700;display:none;">Voto registrado!</div>
     </div>
 
-    <div>
-      <div class="section-title" style="margin-bottom:10px;">Chat geral</div>
-      <div class="chat-wrap">
-        <div class="chat-header">Todos os negócios podem ver e enviar mensagens</div>
-        <div class="chat-msgs" id="chat-msgs-geral"></div>
-        <div class="chat-input-row">
-          <input type="text" id="chat-input-geral" placeholder="Escreva uma mensagem..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChatGeral()">
-          <button class="btn-chat-send" onclick="enviarChatGeral()">Enviar</button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -537,17 +582,6 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
       <div class="cartas-grid" id="tes-cartas-grid"></div>
     </div>
 
-    <div>
-      <div class="section-title" style="margin-bottom:10px;">Chat geral</div>
-      <div class="chat-wrap">
-        <div class="chat-header">Todos os negócios podem ver e enviar mensagens</div>
-        <div class="chat-msgs" id="chat-msgs-tes"></div>
-        <div class="chat-input-row">
-          <input type="text" id="chat-input-tes" placeholder="Escreva uma mensagem..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChatGeral('tes')">
-          <button class="btn-chat-send" onclick="enviarChatGeral('tes')">Enviar</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- VISÃO: OBSERVADOR -->
@@ -567,22 +601,24 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
 
     <!-- PAINEL OUTROS NEGÓCIOS -->
     <div>
-      <div class="section-title" style="margin-bottom:10px;">️ Status dos outros negócios</div>
+      <div class="section-title" style="margin-bottom:10px;">Status dos outros negócios</div>
       <div id="obs-negocios" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
+  </div>
 
-    <div>
-      <div class="section-title" style="margin-bottom:10px;">Chat geral</div>
-      <div class="chat-wrap">
-        <div class="chat-header">Todos os negócios podem ver e enviar mensagens</div>
-        <div class="chat-msgs" id="chat-msgs-obs"></div>
-        <div class="chat-input-row">
-          <input type="text" id="chat-input-obs" placeholder="Escreva uma mensagem..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChatGeral('obs')">
-          <button class="btn-chat-send" onclick="enviarChatGeral('obs')">Enviar</button>
-        </div>
+    </div><!-- fim jogo-main-area -->
+
+    <!-- CHAT LATERAL -->
+    <div class="chat-lateral">
+      <div class="chat-header">Chat geral — todos os negócios</div>
+      <div class="chat-msgs" id="chat-msgs-geral-lateral"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input-lateral" placeholder="Mensagem..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChatGeral('lateral')">
+        <button class="btn-chat-send" onclick="enviarChatGeral('lateral')">Enviar</button>
       </div>
     </div>
-  </div>
+
+  </div><!-- fim jogo-body -->
 
 </div>
 
@@ -647,20 +683,6 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
         <div id="admin-nota-lista" style="display:flex;flex-direction:column;gap:8px;"></div>
       </div>
 
-      <!-- DOAÇÃO -->
-      <div id="admin-doacao-section" style="margin-top:16px;">
-        <div style="font-size:13px;color:#733909;margin-bottom:10px;font-weight:800;">Transferência de caixa entre negócios</div>
-        <div class="admin-btns" style="flex-wrap:wrap;gap:8px;">
-          <select id="doacao-origem" style="flex:1;background:#FFF8F5;border:1px solid #FFB89A;border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-body);font-size:13px;color:#210000;outline:none;">
-            <option value="">De qual negócio...</option>
-          </select>
-          <select id="doacao-destino" style="flex:1;background:#FFF8F5;border:1px solid #FFB89A;border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-body);font-size:13px;color:#210000;outline:none;">
-            <option value="">Para qual negócio...</option>
-          </select>
-          <input type="number" id="doacao-valor" placeholder="Valor $" min="1" style="width:100px;background:#FFF8F5;border:1px solid #FFB89A;border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-body);font-size:13px;color:#210000;outline:none;">
-          <button class="btn-admin-action btn-verde" onclick="aplicarDoacao()">Transferir</button>
-        </div>
-      </div>
     </div>
 
     <!-- AÇÕES -->
@@ -945,7 +967,7 @@ function iniciarJogo() {
   if (chatRef) off(chatRef);
   chatRef = ref(db, `rua/${sessionCode}/chat-geral`);
   onValue(chatRef, (snap) => {
-    const ids = ['chat-msgs-geral', 'chat-msgs-tes', 'chat-msgs-obs'];
+    const ids = ['chat-msgs-geral-lateral'];
     ids.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
     if (!snap.exists()) return;
     const lista = Object.values(snap.val()).sort((a,b) => a.ts - b.ts);
@@ -1048,23 +1070,25 @@ async function atualizarTelaJogo(data) {
   if (status === 'aguardando') {
     document.getElementById('jogo-aguardando-inicio').style.display = 'flex';
     document.getElementById('jogo-aguardando-rodada').style.display = 'none';
+    document.getElementById('jogo-body').style.display = 'none';
     document.getElementById('confirmar-bar').style.display = 'none';
-    mostrarVisao(null);
     return;
   }
 
   document.getElementById('jogo-aguardando-inicio').style.display = 'none';
+  document.getElementById('jogo-body').style.display = 'flex';
 
   const rodadaStatus = negData.rodadaStatus || '';
 
   if (rodadaStatus === 'confirmado') {
-    mostrarVisao(null);
+    document.getElementById('jogo-main-area').style.display = 'none';
     document.getElementById('confirmar-bar').style.display = 'none';
     document.getElementById('jogo-aguardando-rodada').style.display = 'flex';
     return;
   }
 
   document.getElementById('jogo-aguardando-rodada').style.display = 'none';
+  document.getElementById('jogo-main-area').style.display = 'flex';
   document.getElementById('confirmar-bar').style.display = 'none';
 
   // Mostrar visão correta
@@ -1107,6 +1131,19 @@ async function atualizarVisaoLider(negData, rodada, fase) {
   }
 
   dadoRolado = negData.dadoAtual || null;
+
+  // Rodada 2 — negócio que recebeu bônus não rola dado
+  const snapSessao = await get(ref(db, `rua/${sessionCode}`));
+  const bonusAplicado = snapSessao.val()?.bonusAplicado;
+  if (rodada === 2 && bonusAplicado === meuNegocio && !dadoRolado) {
+    document.getElementById('dado-area').style.display = 'block';
+    document.getElementById('dado-resultado').textContent = 'x6';
+    document.getElementById('dado-caixa-texto').textContent = 'Seu negócio recebeu o bônus! O caixa já foi creditado.';
+    document.getElementById('btn-dado').disabled = true;
+    mostrarCartas(negData.caixa || 0, negData);
+    return;
+  }
+
   if (dadoRolado) {
     document.getElementById('dado-resultado').textContent = dadoRolado;
     const caixaRodada = NEGOCIOS[meuNegocio].rendaBase * dadoRolado;
@@ -1197,8 +1234,7 @@ function atualizarVisaoObservador(todos, rodada, fase) {
 }
 
 window.enviarChatGeral = async function(origem) {
-  const inputId = origem === 'tes' ? 'chat-input-tes' : origem === 'obs' ? 'chat-input-obs' : 'chat-input-geral';
-  const input = document.getElementById(inputId);
+  const input = document.getElementById('chat-input-lateral');
   const texto = input.value.trim();
   if (!texto) return;
   await push(ref(db, `rua/${sessionCode}/chat-geral`), {
@@ -1582,17 +1618,6 @@ function atualizarAdmin(data) {
     }
   }
 
-  // Popular selects de doação
-  const opts = Object.entries(negocios).map(([key, val]) => {
-    const neg = NEGOCIOS[key];
-    if (!neg) return '';
-    return `<option value="${key}">${neg.nome} ($${val.caixa || 0})</option>`;
-  }).join('');
-  const origemEl = document.getElementById('doacao-origem');
-  const destinoEl = document.getElementById('doacao-destino');
-  if (origemEl) origemEl.innerHTML = '<option value="">De qual negócio...</option>' + opts;
-  if (destinoEl) destinoEl.innerHTML = '<option value="">Para qual negócio...</option>' + opts;
-
   // Log
   if (data.log) {
     const logEl = document.getElementById('admin-log');
@@ -1601,21 +1626,6 @@ function atualizarAdmin(data) {
   }
 }
 
-window.aplicarDoacao = async function() {
-  const origem = document.getElementById('doacao-origem').value;
-  const destino = document.getElementById('doacao-destino').value;
-  const valor = parseInt(document.getElementById('doacao-valor').value);
-  if (!origem || !destino || !valor || origem === destino) { showToast('Preencha todos os campos!', '#e63946'); return; }
-  const snapOrigem = await get(ref(db, `rua/${sessionCode}/negocios/${origem}`));
-  const snapDestino = await get(ref(db, `rua/${sessionCode}/negocios/${destino}`));
-  const caixaOrigem = snapOrigem.val()?.caixa || 0;
-  if (valor > caixaOrigem) { showToast('Caixa insuficiente!', '#e63946'); return; }
-  await update(ref(db, `rua/${sessionCode}/negocios/${origem}`), { caixa: caixaOrigem - valor });
-  await update(ref(db, `rua/${sessionCode}/negocios/${destino}`), { caixa: (snapDestino.val()?.caixa || 0) + valor });
-  await adicionarLog(`Transferência: ${NEGOCIOS[origem].nome} → ${NEGOCIOS[destino].nome} ($${valor})`);
-  document.getElementById('doacao-valor').value = '';
-  showToast(`Transferido $${valor} de ${NEGOCIOS[origem].nome} para ${NEGOCIOS[destino].nome}!`, '#733909');
-};
 
 window.aplicarNota = async function(negocio, nota) {
   if (!nota || nota < 1 || nota > 6) { showToast('Nota deve ser entre 1 e 6!', '#e63946'); return; }
