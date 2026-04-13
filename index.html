@@ -921,7 +921,7 @@ window.entrarJogo = async function() {
   meuNegocio = negocio;
   meuNome = nome;
   minhaFuncao = funcao;
-  localStorage.setItem('rua-session', JSON.stringify({ sessionCode, meuNegocio, meuNome, minhaFuncao }));
+  sessionStorage.setItem('rua-session', JSON.stringify({ sessionCode, meuNegocio, meuNome, minhaFuncao }));
 
   await update(ref(db, `rua/${codigo}/negocios/${negocio}`), {
     conectado: true,
@@ -934,7 +934,7 @@ window.entrarJogo = async function() {
 };
 
 // RECONEXÃO
-const saved = localStorage.getItem('rua-session');
+const saved = sessionStorage.getItem('rua-session');
 if (saved) {
   try {
     const s = JSON.parse(saved);
@@ -946,10 +946,10 @@ if (saved) {
         minhaFuncao = s.minhaFuncao || '';
         iniciarJogo();
       } else {
-        localStorage.removeItem('rua-session');
+        sessionStorage.removeItem('rua-session');
       }
     });
-  } catch(e) { localStorage.removeItem('rua-session'); }
+  } catch(e) { sessionStorage.removeItem('rua-session'); }
 }
 
 // JOGO EQUIPE
@@ -1475,7 +1475,7 @@ function atualizarProjecao(data) {
 
 // ADMIN
 function tentarReconectarAdmin() {
-  const saved = localStorage.getItem('rua-admin-session');
+  const saved = sessionStorage.getItem('rua-admin-session');
   if (!saved) return;
   const { code } = JSON.parse(saved);
   get(ref(db, `rua/${code}`)).then(snap => {
@@ -1483,7 +1483,7 @@ function tentarReconectarAdmin() {
       sessionCode = code;
       adminConectarSessao(code);
     } else {
-      localStorage.removeItem('rua-admin-session');
+      sessionStorage.removeItem('rua-admin-session');
     }
   });
 }
@@ -1498,7 +1498,7 @@ window.criarSessao = async function() {
   });
 
   sessionCode = codigo;
-  localStorage.setItem('rua-admin-session', JSON.stringify({ code: codigo }));
+  sessionStorage.setItem('rua-admin-session', JSON.stringify({ code: codigo }));
   adminConectarSessao(codigo);
   showToast('Sessão criada! Código: ' + codigo);
 };
@@ -1509,7 +1509,7 @@ window.adminEntrarSessao = async function() {
   const snap = await get(ref(db, `rua/${codigo}`));
   if (!snap.exists()) { showToast('Sessão não encontrada!', '#e63946'); return; }
   sessionCode = codigo;
-  localStorage.setItem('rua-admin-session', JSON.stringify({ code: codigo }));
+  sessionStorage.setItem('rua-admin-session', JSON.stringify({ code: codigo }));
   adminConectarSessao(codigo);
 };
 
@@ -1692,14 +1692,14 @@ window.encerrarJogo = async function() {
   if (!confirm('Encerrar o jogo?')) return;
   await update(ref(db, `rua/${sessionCode}`), { status: 'encerrado' });
   await adicionarLog('Jogo encerrado');
-  localStorage.removeItem('rua-session');
+  sessionStorage.removeItem('rua-session');
   showToast('Jogo encerrado!', '#e63946');
 };
 
 window.limparSessao = async function() {
   if (!confirm('Apagar todos os dados desta sessão?')) return;
   await remove(ref(db, `rua/${sessionCode}`));
-  localStorage.removeItem('rua-admin-session');
+  sessionStorage.removeItem('rua-admin-session');
   sessionCode = '';
   document.getElementById('admin-criar-section').style.display = 'block';
   ['admin-controle-section','admin-negocios-section','admin-evento-section','admin-acoes-section','admin-log-section'].forEach(id => {
