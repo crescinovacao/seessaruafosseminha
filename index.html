@@ -427,6 +427,12 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
       <div class="status-card" style="border-color:var(--neg-color,#733909);"><div class="val" id="jogo-prosper" style="color:var(--neg-color,#733909);">0</div><div class="lbl">Prosperidade</div></div>
     </div>
 
+    <!-- RANKING REVELADO -->
+    <div id="ranking-revelado" style="display:none;background:#fff;border-radius:var(--radius);border:2px solid var(--neg-color,#733909);padding:20px;">
+      <div style="font-family:var(--font-title);font-size:18px;color:var(--neg-color,#733909);margin-bottom:12px;">Ranking atual</div>
+      <div id="ranking-lista"></div>
+    </div>
+
     <div class="carta-desafio-reveal" id="carta-desafio-reveal">
       <div class="cd-label">🃏 Sua carta de desafio secreto</div>
       <div class="cd-numero" id="cd-numero">?</div>
@@ -460,14 +466,34 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
       <p>Agora vocês sabem: a prosperidade da cidade depende de TODOS os negócios. O que muda nas suas decisões?</p>
     </div>
 
+    <!-- DOAÇÃO -->
+    <div id="doacao-area" style="display:none;">
+      <div class="section-title" style="margin-bottom:10px;">Transferir caixa</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <select id="lider-doacao-destino" style="flex:1;background:var(--cinza-bg);border:1px solid var(--cinza-border);border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-body);font-size:13px;color:var(--cinza-text);outline:none;">
+          <option value="">Para qual negócio...</option>
+        </select>
+        <input type="number" id="lider-doacao-valor" placeholder="Valor $" min="1" style="width:100px;background:var(--cinza-bg);border:1px solid var(--cinza-border);border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-body);font-size:13px;color:var(--cinza-text);outline:none;">
+        <button class="btn-confirmar" onclick="liderDoar()">Transferir</button>
+      </div>
+    </div>
+
+    <!-- VOTAÇÃO BÔNUS -->
+    <div id="votacao-bonus-area" style="display:none;">
+      <div class="section-title" style="margin-bottom:8px;">Qual negócio merece o bônus desta rodada?</div>
+      <div style="font-size:13px;color:var(--cinza-muted);margin-bottom:12px;">Escolha um negócio (não pode ser o seu)</div>
+      <div id="votacao-btns" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      <div id="votacao-status" style="font-size:13px;color:#FF5527;margin-top:8px;font-weight:700;display:none;">Voto registrado!</div>
+    </div>
+
     <div>
-      <div class="section-title" style="margin-bottom:10px;"> Chat da equipe</div>
+      <div class="section-title" style="margin-bottom:10px;">Chat geral</div>
       <div class="chat-wrap">
-        <div class="chat-header">Apenas sua equipe vê estas mensagens</div>
-        <div class="chat-msgs" id="chat-msgs-lider"></div>
+        <div class="chat-header">Todos os negócios podem ver e enviar mensagens</div>
+        <div class="chat-msgs" id="chat-msgs-geral"></div>
         <div class="chat-input-row">
-          <input type="text" id="chat-input-lider" placeholder="Escreva uma mensagem..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChat('lider')">
-          <button class="btn-chat-send" onclick="enviarChat('lider')">Enviar</button>
+          <input type="text" id="chat-input-geral" placeholder="Escreva uma mensagem..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChatGeral()">
+          <button class="btn-chat-send" onclick="enviarChatGeral()">Enviar</button>
         </div>
       </div>
     </div>
@@ -512,13 +538,13 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
     </div>
 
     <div>
-      <div class="section-title" style="margin-bottom:10px;"> Chat da equipe</div>
+      <div class="section-title" style="margin-bottom:10px;">Chat geral</div>
       <div class="chat-wrap">
-        <div class="chat-header">Apenas sua equipe vê estas mensagens</div>
+        <div class="chat-header">Todos os negócios podem ver e enviar mensagens</div>
         <div class="chat-msgs" id="chat-msgs-tes"></div>
         <div class="chat-input-row">
-          <input type="text" id="chat-input-tes" placeholder="Sugira investimentos..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChat('tes')">
-          <button class="btn-chat-send" onclick="enviarChat('tes')">Enviar</button>
+          <input type="text" id="chat-input-tes" placeholder="Escreva uma mensagem..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChatGeral('tes')">
+          <button class="btn-chat-send" onclick="enviarChatGeral('tes')">Enviar</button>
         </div>
       </div>
     </div>
@@ -546,13 +572,13 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
     </div>
 
     <div>
-      <div class="section-title" style="margin-bottom:10px;"> Chat da equipe</div>
+      <div class="section-title" style="margin-bottom:10px;">Chat geral</div>
       <div class="chat-wrap">
-        <div class="chat-header">Compartilhe o que está vendo!</div>
+        <div class="chat-header">Todos os negócios podem ver e enviar mensagens</div>
         <div class="chat-msgs" id="chat-msgs-obs"></div>
         <div class="chat-input-row">
-          <input type="text" id="chat-input-obs" placeholder="Relate o que viu nos outros negócios..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChat('obs')">
-          <button class="btn-chat-send" onclick="enviarChat('obs')">Enviar</button>
+          <input type="text" id="chat-input-obs" placeholder="Escreva uma mensagem..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChatGeral('obs')">
+          <button class="btn-chat-send" onclick="enviarChatGeral('obs')">Enviar</button>
         </div>
       </div>
     </div>
@@ -643,6 +669,7 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
       <div class="admin-btns" style="flex-wrap:wrap;">
         <button class="btn-admin-action btn-verde" id="btn-iniciar" onclick="iniciarJogo()">Iniciar jogo</button>
         <button class="btn-admin-action btn-verde" id="btn-avancar" onclick="avancarRodada()" disabled>Avançar rodada</button>
+        <button class="btn-admin-action btn-verde" id="btn-ranking" onclick="revelarRanking()" disabled>Revelar ranking</button>
         <button class="btn-admin-action btn-verde" id="btn-fase2" onclick="revelarFase2()" disabled>Revelar Fase 2</button>
         <button class="btn-admin-action btn-vermelho" id="btn-encerrar" onclick="encerrarJogo()" disabled>Encerrar jogo</button>
         <button class="btn-admin-action btn-verde" onclick="limparSessao()">Limpar sessão</button>
@@ -916,9 +943,9 @@ function iniciarJogo() {
   });
 
   if (chatRef) off(chatRef);
-  chatRef = ref(db, `rua/${sessionCode}/chat/${meuNegocio}`);
+  chatRef = ref(db, `rua/${sessionCode}/chat-geral`);
   onValue(chatRef, (snap) => {
-    const ids = ['chat-msgs-lider', 'chat-msgs-tes', 'chat-msgs-obs'];
+    const ids = ['chat-msgs-geral', 'chat-msgs-tes', 'chat-msgs-obs'];
     ids.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
     if (!snap.exists()) return;
     const lista = Object.values(snap.val()).sort((a,b) => a.ts - b.ts);
@@ -926,7 +953,7 @@ function iniciarJogo() {
       const proprio = msg.nome === meuNome;
       const html = `
         <div class="chat-msg ${proprio ? 'proprio' : ''}">
-          <div class="msg-autor">${msg.nome}<span class="msg-funcao">${msg.funcao}</span></div>
+          <div class="msg-autor">${msg.negocio}<span class="msg-funcao">${msg.funcao}</span></div>
           <div class="msg-texto">${msg.texto}</div>
         </div>`;
       ids.forEach(id => {
@@ -962,6 +989,57 @@ async function atualizarTelaJogo(data) {
   ['jogo-vn','tes-vn','obs-vn'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = vn; });
   ['jogo-vc','tes-vc','obs-vc'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = vc; });
   ['jogo-prosper','tes-prosper','obs-prosper'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = prosper; });
+
+  // Ranking visível
+  const rankingEl = document.getElementById('ranking-revelado');
+  const rankingLista = document.getElementById('ranking-lista');
+  if (data.rankingVisivel && rankingEl) {
+    rankingEl.style.display = 'block';
+    const sorted = Object.entries(todos).filter(([k]) => NEGOCIOS[k]).sort((a,b) => {
+      const pa = ((b[1].vn||0)*(b[1].vc||0));
+      const pb = ((a[1].vn||0)*(a[1].vc||0));
+      return pa - pb;
+    });
+    rankingLista.innerHTML = sorted.map(([key, val], i) => {
+      const neg = NEGOCIOS[key];
+      const p = Math.round(((val.vn||0)*(val.vc||0))/25*10)/10;
+      return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--cinza-border);font-size:14px;">
+        <span><strong>${i+1}.</strong> ${neg.nome}</span>
+        <span style="font-weight:800;color:var(--neg-color,#733909);">P: ${p}</span>
+      </div>`;
+    }).join('');
+  } else if (rankingEl) {
+    rankingEl.style.display = 'none';
+  }
+
+  // Doação — só liderança, só quando dado rolado
+  const doacaoEl = document.getElementById('doacao-area');
+  if (doacaoEl && minhaFuncao === 'Liderança' && negData.dadoAtual && negData.rodadaStatus !== 'confirmado') {
+    doacaoEl.style.display = 'block';
+    const opts = Object.entries(todos).filter(([k]) => k !== meuNegocio && NEGOCIOS[k]).map(([key, val]) =>
+      `<option value="${key}">${NEGOCIOS[key].nome} ($${val.caixa||0})</option>`).join('');
+    document.getElementById('lider-doacao-destino').innerHTML = '<option value="">Para qual negócio...</option>' + opts;
+  } else if (doacaoEl) {
+    doacaoEl.style.display = 'none';
+  }
+
+  // Votação bônus — rodada 2
+  const votacaoEl = document.getElementById('votacao-bonus-area');
+  if (votacaoEl && rodada === 2 && data.rankingVisivel) {
+    votacaoEl.style.display = 'block';
+    const meuVoto = data.votosBonus?.[meuNegocio]?.voto;
+    if (!meuVoto) {
+      document.getElementById('votacao-status').style.display = 'none';
+      document.getElementById('votacao-btns').innerHTML = Object.entries(todos)
+        .filter(([k]) => k !== meuNegocio && NEGOCIOS[k])
+        .map(([key]) => `<button class="btn-confirmar" onclick="votarBonus('${key}')">${NEGOCIOS[key].nome}</button>`).join('');
+    } else {
+      document.getElementById('votacao-status').style.display = 'block';
+      document.getElementById('votacao-status').textContent = `Seu voto: ${NEGOCIOS[meuVoto]?.nome}`;
+    }
+  } else if (votacaoEl) {
+    votacaoEl.style.display = 'none';
+  }
 
   // Fase 2
   const f2 = document.getElementById('fase2-banner');
@@ -1003,17 +1081,27 @@ async function atualizarTelaJogo(data) {
 }
 
 async function atualizarVisaoLider(negData, rodada, fase) {
-  // Carta desafio mês 5
+  // Rodada 5 — multiplicador por ranking (ranking reverso: últimos ganham mais)
   const cartaDesafioEl = document.getElementById('carta-desafio-reveal');
   if (rodada === 5) {
-    let cartaNum = negData.cartaDesafio;
-    if (!cartaNum) {
-      cartaNum = Math.floor(Math.random() * 6) + 1;
-      await update(ref(db, `rua/${sessionCode}/negocios/${meuNegocio}`), { cartaDesafio: cartaNum });
+    const snap = await get(ref(db, `rua/${sessionCode}/negocios`));
+    if (snap.exists()) {
+      const todos = snap.val();
+      const sorted = Object.entries(todos).filter(([k]) => NEGOCIOS[k])
+        .sort((a,b) => ((b[1].vn||0)*(b[1].vc||0)) - ((a[1].vn||0)*(a[1].vc||0)));
+      const pos = sorted.findIndex(([k]) => k === meuNegocio);
+      const total = sorted.length;
+      const multiplicadores = [1, 1, 2, 3, 5, 6];
+      const mult = multiplicadores[Math.min(pos, multiplicadores.length - 1)];
+      document.getElementById('cd-numero').textContent = `x${mult}`;
+      document.getElementById('cd-texto').textContent = pos < 2
+        ? `Você está entre os líderes! Sua renda base é multiplicada por ${mult} nesta rodada.`
+        : `A cidade precisa de você! Sua renda base é multiplicada por ${mult} nesta rodada.`;
+      cartaDesafioEl.classList.add('visivel');
+      if (!negData.cartaDesafio) {
+        await update(ref(db, `rua/${sessionCode}/negocios/${meuNegocio}`), { cartaDesafio: mult });
+      }
     }
-    document.getElementById('cd-numero').textContent = cartaNum;
-    document.getElementById('cd-texto').textContent = CARTAS_DESAFIO[cartaNum - 1];
-    cartaDesafioEl.classList.add('visivel');
   } else {
     cartaDesafioEl.classList.remove('visivel');
   }
@@ -1108,16 +1196,50 @@ function atualizarVisaoObservador(todos, rodada, fase) {
   }).join('');
 }
 
-window.enviarChat = async function(origem) {
-  const inputId = origem === 'lider' ? 'chat-input-lider' : origem === 'tes' ? 'chat-input-tes' : 'chat-input-obs';
+window.enviarChatGeral = async function(origem) {
+  const inputId = origem === 'tes' ? 'chat-input-tes' : origem === 'obs' ? 'chat-input-obs' : 'chat-input-geral';
   const input = document.getElementById(inputId);
   const texto = input.value.trim();
   if (!texto) return;
-  await push(ref(db, `rua/${sessionCode}/chat/${meuNegocio}`), {
-    nome: meuNome, funcao: minhaFuncao, texto, ts: Date.now()
+  await push(ref(db, `rua/${sessionCode}/chat-geral`), {
+    nome: meuNome, negocio: NEGOCIOS[meuNegocio]?.nome || meuNegocio,
+    funcao: minhaFuncao, texto, ts: Date.now()
   });
   input.value = '';
 };
+
+window.liderDoar = async function() {
+  const destino = document.getElementById('lider-doacao-destino').value;
+  const valor = parseInt(document.getElementById('lider-doacao-valor').value);
+  if (!destino || !valor || valor <= 0) { showToast('Preencha destino e valor!', '#e63946'); return; }
+  const snap = await get(ref(db, `rua/${sessionCode}/negocios/${meuNegocio}`));
+  const caixaAtual = snap.val()?.caixa || 0;
+  if (valor > caixaAtual) { showToast('Caixa insuficiente!', '#e63946'); return; }
+  const snapDest = await get(ref(db, `rua/${sessionCode}/negocios/${destino}`));
+  await update(ref(db, `rua/${sessionCode}/negocios/${meuNegocio}`), { caixa: caixaAtual - valor });
+  await update(ref(db, `rua/${sessionCode}/negocios/${destino}`), { caixa: (snapDest.val()?.caixa || 0) + valor });
+  await push(ref(db, `rua/${sessionCode}/chat-geral`), {
+    nome: 'Sistema', negocio: 'Sistema', funcao: '',
+    texto: `${NEGOCIOS[meuNegocio].nome} transferiu $${valor} para ${NEGOCIOS[destino].nome}`,
+    ts: Date.now()
+  });
+  document.getElementById('lider-doacao-valor').value = '';
+  showToast(`$${valor} transferido!`, '#733909');
+};
+
+window.votarBonus = async function(negocio) {
+  await update(ref(db, `rua/${sessionCode}/votosBonus/${meuNegocio}`), { voto: negocio });
+  document.getElementById('votacao-status').style.display = 'block';
+  document.querySelectorAll('#votacao-btns button').forEach(b => b.disabled = true);
+  showToast('Voto registrado!', '#733909');
+};
+
+window.revelarRanking = async function() {
+  await update(ref(db, `rua/${sessionCode}`), { rankingVisivel: true });
+  showToast('Ranking revelado para todos!', '#733909');
+};
+
+window.enviarChat = window.enviarChatGeral;
 
 window.rolarDado = async function() {
   document.getElementById('btn-dado').disabled = true;
@@ -1128,11 +1250,16 @@ window.rolarDado = async function() {
   const neg = NEGOCIOS[meuNegocio];
 
   // Etapa 4 — nota recebida é o multiplicador
+  // Rodada 5 — multiplicador por ranking
   let val;
   if (rodadaAtual === 4 && negDataAtual.notaRodada) {
     val = negDataAtual.notaRodada;
-    document.getElementById('dado-resultado').textContent = val;
+    document.getElementById('dado-resultado').textContent = `x${val}`;
     document.getElementById('dado-caixa-texto').textContent = `Nota recebida: ${val} — Caixa: ${formatDinheiro(neg.rendaBase * val)}`;
+  } else if (rodadaAtual === 5 && negDataAtual.cartaDesafio) {
+    val = negDataAtual.cartaDesafio;
+    document.getElementById('dado-resultado').textContent = `x${val}`;
+    document.getElementById('dado-caixa-texto').textContent = `Multiplicador: x${val} — Caixa: ${formatDinheiro(neg.rendaBase * val)}`;
   } else {
     val = Math.floor(Math.random() * 6) + 1;
     document.getElementById('dado-resultado').textContent = val;
@@ -1373,6 +1500,7 @@ function atualizarAdmin(data) {
   // Botões
   document.getElementById('btn-iniciar').disabled = status !== 'aguardando';
   document.getElementById('btn-avancar').disabled = status !== 'jogando' || rodada >= 5;
+  document.getElementById('btn-ranking').disabled = status !== 'jogando';
   document.getElementById('btn-fase2').disabled = fase === 2 || rodada < 3;
   document.getElementById('btn-encerrar').disabled = rodada < 5;
 
@@ -1422,8 +1550,15 @@ function atualizarAdmin(data) {
         const jaAplicado = bonusAplicado === key;
         return `<button class="btn-admin-action ${jaAplicado ? 'btn-verde' : 'btn-amarelo'}" onclick="aplicarBonus('${key}')" ${bonusAplicado ? 'disabled' : ''}>${neg.nome}${jaAplicado ? ' ✓' : ''}</button>`;
       }).join('');
-    } else {
-      bonusSection.style.display = 'none';
+    // Votos bônus Etapa 2
+    if (rodada === 2 && data.votosBonus) {
+      const contagem = {};
+      Object.values(data.votosBonus).forEach(v => {
+        contagem[v.voto] = (contagem[v.voto] || 0) + 1;
+      });
+      const votoInfo = Object.entries(contagem).map(([k, v]) => `${NEGOCIOS[k]?.nome}: ${v} voto(s)`).join(' | ');
+      document.getElementById('admin-bonus-aplicado').textContent = `Votos: ${votoInfo}`;
+      document.getElementById('admin-bonus-aplicado').style.display = 'block';
     }
 
     // Nota Etapa 4
@@ -1516,7 +1651,7 @@ window.avancarRodada = async function() {
   const rodadaAtual = data.rodada || 1;
   const proxRodada = rodadaAtual + 1;
   if (proxRodada > 5) return;
-  await update(ref(db, `rua/${sessionCode}`), { rodada: proxRodada, bonusAplicado: null });
+  await update(ref(db, `rua/${sessionCode}`), { rodada: proxRodada, bonusAplicado: null, rankingVisivel: false, votosBonus: null });
   await resetarRodadaNegocios(proxRodada);
   await adicionarLog(`Rodada ${proxRodada} iniciada`);
   showToast(`Rodada ${proxRodada} iniciada!`);
