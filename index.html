@@ -29,8 +29,8 @@
 body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--cinza-text); min-height: 100vh; }
 
 /* TELAS */
-.tela { display: none; min-height: 100vh; }
-.tela.ativa { display: flex; flex-direction: column; }
+.tela { display: none; min-height: 100vh; flex-direction: column; }
+.tela.ativa { display: flex; }
 
 /* ENTRADA */
 #tela-entrada {
@@ -73,7 +73,7 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
 .neg-transporte{ --neg-color: #222B3D; --neg-mid: #9998A5; --neg-light: #D0E0EA; }
 
 /* TELA JOGO EQUIPE */
-#tela-jogo { background: var(--cinza-bg); display: flex; flex-direction: column; }
+#tela-jogo { background: var(--cinza-bg); }
 
 .jogo-body {
   display: flex; flex: 1; overflow: hidden;
@@ -456,7 +456,7 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
   </div>
 
   <!-- AGUARDANDO INÍCIO -->
-  <div class="aguardando" id="jogo-aguardando-inicio">
+  <div class="aguardando" id="jogo-aguardando-inicio" style="display:none;">
     <h2>Aguardando início...</h2>
     <p>O consultor vai iniciar o jogo em breve. Fique de olho!</p>
   </div>
@@ -953,6 +953,9 @@ function iniciarJogo() {
   const neg = NEGOCIOS[meuNegocio];
   document.getElementById('tela-jogo').className = `tela ativa neg-${meuNegocio}`;
   document.getElementById('jogo-negocio-nome').textContent = neg.nome;
+  document.getElementById('jogo-aguardando-inicio').style.display = 'flex';
+  document.getElementById('jogo-aguardando-rodada').style.display = 'none';
+  document.getElementById('jogo-body').style.display = 'none';
   document.getElementById('jogo-funcao-badge').textContent =
     minhaFuncao === 'Liderança' ? ' Liderança' :
     minhaFuncao === 'Tesoureiro' ? ' Tesoureiro' : '️ Observador';
@@ -1586,15 +1589,21 @@ function atualizarAdmin(data) {
         const jaAplicado = bonusAplicado === key;
         return `<button class="btn-admin-action ${jaAplicado ? 'btn-verde' : 'btn-amarelo'}" onclick="aplicarBonus('${key}')" ${bonusAplicado ? 'disabled' : ''}>${neg.nome}${jaAplicado ? ' ✓' : ''}</button>`;
       }).join('');
-    // Votos bônus Etapa 2
-    if (rodada === 2 && data.votosBonus) {
-      const contagem = {};
-      Object.values(data.votosBonus).forEach(v => {
-        contagem[v.voto] = (contagem[v.voto] || 0) + 1;
-      });
-      const votoInfo = Object.entries(contagem).map(([k, v]) => `${NEGOCIOS[k]?.nome}: ${v} voto(s)`).join(' | ');
-      document.getElementById('admin-bonus-aplicado').textContent = `Votos: ${votoInfo}`;
-      document.getElementById('admin-bonus-aplicado').style.display = 'block';
+
+      // Votos bônus Etapa 2
+      if (data.votosBonus) {
+        const contagem = {};
+        Object.values(data.votosBonus).forEach(v => {
+          contagem[v.voto] = (contagem[v.voto] || 0) + 1;
+        });
+        const votoInfo = Object.entries(contagem).map(([k, v]) => `${NEGOCIOS[k]?.nome}: ${v} voto(s)`).join(' | ');
+        document.getElementById('admin-bonus-aplicado').textContent = `Votos: ${votoInfo}`;
+        document.getElementById('admin-bonus-aplicado').style.display = 'block';
+      }
+
+      bonusSection.style.display = 'block';
+    } else {
+      bonusSection.style.display = 'none';
     }
 
     // Nota Etapa 4
