@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Se Essa Rua Fosse Minha — Pequenópolis</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --principal-dark: #733909;
+  --principal-mid: #FF5527;
+  --principal-light: #FFC7AE;
+  --amarelo: #FF5527;
+  --vermelho: #e76f51;
+  --azul: #457b9d;
+  --roxo: #6a4c93;
+  --cinza-bg: #f8f9fa;
+  --cinza-card: #ffffff;
+  --cinza-text: #210000;
+  --cinza-muted: #6c757d;
+  --cinza-border: #dee2e6;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-title: 'Raleway', sans-serif;
+  --font-body: 'Aptos', Arial, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--cinza-text); min-height: 100vh; }
+
+/* TELAS */
+.tela { display: none; min-height: 100vh; }
+.tela.ativa { display: flex; flex-direction: column; }
+
+/* ENTRADA */
+#tela-entrada {
+  background: #733909;
+  align-items: center; justify-content: center; padding: 20px; gap: 24px;
+}
+.entrada-logo { font-family: var(--font-title); font-size: 42px; color: #fff; text-align: center; }
+.entrada-logo span { color: #FFC7AE; font-size: 18px; display: block; font-family: var(--font-body); font-weight: 700; letter-spacing: 0.1em; }
+.entrada-box {
+  background: #fff; border-radius: var(--radius); padding: 32px; width: 100%; max-width: 420px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.entrada-box h2 { font-family: var(--font-title); font-size: 22px; color: var(--principal-dark); text-align: center; }
+.entrada-box input, .entrada-box select {
+  border: 2px solid var(--cinza-border); border-radius: var(--radius-sm); padding: 12px 16px;
+  font-family: var(--font-body); font-size: 15px; color: var(--cinza-text); outline: none;
+  transition: border 0.15s; width: 100%; background: var(--cinza-bg);
+}
+.entrada-box input:focus, .entrada-box select:focus { border-color: var(--principal-mid); background: #fff; }
+.btn-primary {
+  background: #733909; color: #fff; border: none; padding: 14px;
+  border-radius: 100px; font-family: var(--font-title); font-size: 18px;
+  cursor: pointer; transition: all 0.15s; width: 100%;
+}
+.btn-primary:hover { background: var(--principal-mid); }
+.btn-primary:disabled { opacity: 0.5; cursor: default; }
+.entrada-sep { display: flex; align-items: center; gap: 12px; color: var(--cinza-muted); font-size: 13px; }
+.entrada-sep::before, .entrada-sep::after { content: ''; flex: 1; height: 1px; background: var(--cinza-border); }
+.btn-admin { background: none; border: 2px solid var(--cinza-border); color: var(--cinza-muted); padding: 10px; border-radius: 100px; font-family: var(--font-body); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; width: 100%; -webkit-tap-highlight-color: transparent; }
+.btn-admin:hover { border-color: #733909; color: #733909; }
+.btn-admin:active { background: #FFC7AE; border-color: #733909; color: #733909; outline: none; }
+.entrada-erro { font-size: 13px; color: var(--vermelho); text-align: center; min-height: 18px; font-weight: 700; }
+
+/* NEGÓCIOS CORES */
+.neg-mercado   { --neg-color: #003E00; --neg-mid: #00C466; --neg-light: #BDF4CC; }
+.neg-farmacia  { --neg-color: #876300; --neg-mid: #FFB93E; --neg-light: #FFF0C6; }
+.neg-escola    { --neg-color: #004641; --neg-mid: #009EAA; --neg-light: #A1EAE6; }
+.neg-academia  { --neg-color: #001B71; --neg-mid: #007BEA; --neg-light: #B3DFFF; }
+.neg-shopping  { --neg-color: #A50062; --neg-mid: #ED40A9; --neg-light: #F6A7D7; }
+.neg-transporte{ --neg-color: #222B3D; --neg-mid: #9998A5; --neg-light: #D0E0EA; }
+
+/* TELA JOGO EQUIPE */
+#tela-jogo { background: var(--cinza-bg); }
+
+.jogo-header {
+  background: var(--neg-color, var(--principal-dark)); color: #fff;
+  padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+}
+.jogo-header h1 { font-family: var(--font-title); font-size: 22px; }
+.jogo-header .rodada-info { font-size: 13px; opacity: 0.85; font-weight: 700; }
+
+.jogo-content { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+
+.status-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.status-card {
+  background: #fff; border-radius: var(--radius-sm); padding: 14px;
+  text-align: center; border: 2px solid var(--cinza-border);
+}
+.status-card .val { font-family: var(--font-title); font-size: 28px; color: var(--neg-color, var(--principal-dark)); }
+.status-card .lbl { font-size: 11px; font-weight: 700; color: var(--cinza-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+.section-title { font-family: var(--font-title); font-size: 18px; color: var(--cinza-text); margin-bottom: 4px; }
+
+/* DADO */
+.dado-area { background: #fff; border-radius: var(--radius); padding: 20px; text-align: center; border: 2px solid var(--cinza-border); }
+.dado-resultado { font-family: var(--font-title); font-size: 64px; line-height: 1; margin: 8px 0; color: var(--neg-color, var(--principal-dark)); }
+.dado-caixa { font-size: 14px; color: var(--cinza-muted); font-weight: 700; }
+.btn-dado {
+  background: var(--neg-color, var(--principal-dark)); color: #fff; border: none; padding: 12px 32px;
+  border-radius: 100px; font-family: var(--font-title); font-size: 18px; cursor: pointer;
+  transition: all 0.2s; margin-top: 12px;
+}
+.btn-dado:hover { opacity: 0.85; transform: scale(1.03); }
+.btn-dado:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+/* CARTAS */
+.cartas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.carta {
+  background: #fff; border: 2px solid var(--cinza-border); border-radius: var(--radius-sm);
+  padding: 12px; cursor: pointer; transition: all 0.15s; position: relative;
+}
+.carta:hover { border-color: var(--neg-color, var(--principal-dark)); transform: translateY(-2px); }
+.carta.selecionada { border-color: var(--neg-color, var(--principal-dark)); background: var(--neg-light, #FFC7AE); }
+.carta.indisponivel { opacity: 0.4; cursor: not-allowed; }
+.carta.indisponivel:hover { transform: none; border-color: var(--cinza-border); }
+.carta-nome { font-weight: 800; font-size: 13px; line-height: 1.3; margin-bottom: 8px; }
+.carta-stats { display: flex; flex-direction: column; gap: 3px; }
+.carta-stat { display: flex; justify-content: space-between; font-size: 11px; }
+.carta-stat .sval { font-weight: 800; }
+.carta-stat.custo .sval { color: var(--vermelho); }
+.carta-stat.vn .sval { color: var(--azul); }
+.carta-stat.vc .sval { color: var(--neg-color, #733909); }
+.carta-check {
+  position: absolute; top: 8px; right: 8px; width: 20px; height: 20px;
+  background: var(--neg-color, var(--principal-dark)); border-radius: 50%; display: none;
+  align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 900;
+}
+.carta.selecionada .carta-check { display: flex; }
+
+.confirmar-bar {
+  background: #fff; border-top: 2px solid var(--cinza-border);
+  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.confirmar-info { font-size: 13px; color: var(--cinza-muted); font-weight: 700; }
+.confirmar-info strong { color: var(--cinza-text); }
+.btn-confirmar {
+  background: var(--neg-color, #733909); color: #fff; border: none; padding: 12px 28px;
+  border-radius: 100px; font-family: var(--font-title); font-size: 16px; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-confirmar:hover { background: var(--neg-mid, #FF5527); }
+.btn-confirmar:disabled { opacity: 0.4; cursor: default; }
+
+/* AGUARDANDO */
+.aguardando {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px; padding: 40px; text-align: center;
+}
+.aguardando .icone { font-size: 72px; }
+.aguardando h2 { font-family: var(--font-title); font-size: 26px; color: var(--neg-color, #733909); }
+.aguardando p { color: var(--cinza-muted); font-size: 15px; max-width: 340px; }
+
+/* RESULTADO RODADA */
+.resultado-rodada {
+  background: #fff; border-radius: var(--radius); padding: 20px;
+  border: 2px solid var(--principal-light); display: flex; flex-direction: column; gap: 8px;
+}
+.resultado-item { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; border-bottom: 1px solid var(--cinza-border); }
+.resultado-item:last-child { border-bottom: none; font-weight: 800; font-size: 15px; }
+.resultado-item .rval { font-weight: 800; }
+.resultado-item .rval.pos { color: var(--neg-color, #733909); }
+.resultado-item .rval.neg { color: var(--vermelho); }
+
+/* PROJEÇÃO */
+#tela-projecao {
+  background: #FFF8F5;
+  color: #210000;
+}
+.proj-header {
+  background: #FFF8F5; padding: 20px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.proj-header h1 { font-family: var(--font-title); font-size: 32px; color: #FFC7AE; }
+.proj-header .rodada-badge {
+  background: var(--principal-mid); color: #fff; padding: 8px 20px;
+  border-radius: 100px; font-family: var(--font-title); font-size: 18px;
+}
+.proj-content { flex: 1; padding: 30px 40px; display: flex; flex-direction: column; gap: 24px; }
+
+.proj-ranking { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.proj-negocio {
+  background: #FFF8F5; border-radius: var(--radius); padding: 20px;
+  border: 2px solid #FFB89A; transition: border-color 0.3s;
+}
+.proj-negocio.confirmado { border-color: var(--principal-mid); }
+.proj-negocio-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.proj-negocio-nome { font-family: var(--font-title); font-size: 20px; }
+.proj-negocio-status { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 100px; }
+.proj-negocio-status.aguardando { background: #FFC7AE; color: #733909; }
+.proj-negocio-status.ok { background: #733909; color: #FFC7AE; }
+.proj-stats { display: flex; gap: 16px; }
+.proj-stat { flex: 1; text-align: center; }
+.proj-stat .pval { font-family: var(--font-title); font-size: 26px; }
+.proj-stat .plbl { font-size: 11px; color: #733909; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.proj-prosperidade {
+  background: #FFF8F5; border-radius: var(--radius); padding: 24px 32px;
+  border: 2px solid #FFB89A; display: none;
+}
+.proj-prosperidade.visivel { display: block; }
+.proj-prosperidade h2 { font-family: var(--font-title); font-size: 22px; color: #FFC7AE; margin-bottom: 16px; }
+.prosper-faixas { display: flex; gap: 8px; align-items: flex-end; }
+.prosper-faixa { flex: 1; border-radius: 8px 8px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 8px 4px; font-size: 12px; font-weight: 700; text-align: center; transition: all 0.5s; }
+.prosper-faixa.ativa { transform: scale(1.05); }
+.faixa-calamidade { background: #e76f51; height: 60px; color: #fff; }
+.faixa-satisfatoria { background: #FF5527; height: 80px; color: #fff; }
+.faixa-prospera { background: #FF5527; height: 100px; color: #fff; }
+.faixa-muito-prospera { background: #733909; height: 120px; color: #fff; }
+.prosper-valor { font-family: var(--font-title); font-size: 36px; text-align: center; margin-top: 16px; color: #fff; }
+.prosper-label { font-size: 16px; font-weight: 800; text-align: center; margin-top: 4px; }
+
+/* ADMIN */
+#tela-admin { background: #FFF8F5; color: #210000; }
+.admin-header { background: #733909; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+.admin-header h1 { font-family: var(--font-title); font-size: 24px; color: #FFC7AE; }
+.admin-content { padding: 24px 32px; display: flex; flex-direction: column; gap: 20px; flex: 1; overflow-y: auto; }
+
+.admin-section { background: #fff; border-radius: var(--radius); padding: 20px; border: 1px solid #FFB89A; }
+.admin-section h2 { font-family: var(--font-title); font-size: 18px; color: #733909; margin-bottom: 14px; }
+
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.admin-stat { background: #FFC7AE; border-radius: var(--radius-sm); padding: 12px 16px; }
+.admin-stat .av { font-family: var(--font-title); font-size: 24px; color: #FF5527; }
+.admin-stat .al { font-size: 11px; color: #733909; text-transform: uppercase; }
+
+.btn-admin-action {
+  padding: 12px 20px; border-radius: var(--radius-sm); border: none;
+  font-family: var(--font-body); font-size: 14px; font-weight: 800; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-verde { background: #733909; color: #fff; }
+.btn-verde:hover { background: #5a2c07; }
+.btn-amarelo { background: #FF5527; color: #fff; }
+.btn-amarelo:hover { background: #e63e12; }
+.btn-roxo { background: #733909; color: #fff; }
+.btn-roxo:hover { background: #5a2c07; }
+.btn-vermelho { background: #FF5527; color: #fff; }
+.btn-vermelho:hover { background: #e63e12; }
+.btn-admin-action:disabled { opacity: 0.4; cursor: default; }
+
+.admin-negocio-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid #FFB89A;
+}
+.admin-negocio-row:last-child { border-bottom: none; }
+.admin-negocio-nome { font-weight: 800; font-size: 15px; }
+.admin-negocio-stats { display: flex; gap: 16px; font-size: 13px; color: #733909; }
+.admin-negocio-status-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; }
+.badge-ok { background: #733909; color: #FFC7AE; }
+.badge-wait { background: #FFC7AE; color: #733909; }
+
+.admin-log { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.log-item { font-size: 12px; color: #733909; padding: 4px 0; border-bottom: 1px solid #FFB89A; }
+.log-item strong { color: #FF5527; }
+
+.event-especial { background: #FFC7AE; border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 8px; }
+.event-especial p { font-size: 13px; color: #733909; line-height: 1.5; }
+.event-especial strong { color: #FF5527; }
+
+/* FASE 2 REVEAL */
+.fase2-banner {
+  background: #6a4c93;
+  border-radius: var(--radius); padding: 20px 24px; text-align: center;
+  display: none;
+}
+.fase2-banner.visivel { display: block; }
+.fase2-banner h2 { font-family: var(--font-title); font-size: 24px; color: #fff; }
+.fase2-banner p { color: rgba(255,255,255,0.85); font-size: 14px; margin-top: 8px; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--neg-color, #733909); color: #fff; padding: 10px 24px; border-radius: 100px;
+  font-family: var(--font-title); font-size: 16px; z-index: 9999; transition: transform 0.3s;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* SPINNER */
+.spinner { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* FIM DE JOGO */
+.fim-jogo { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 40px; text-align: center; background: #733909; }
+.fim-jogo h1 { font-family: var(--font-title); font-size: 42px; color: #FFC7AE; }
+.fim-jogo .ranking-final { background: rgba(255,255,255,0.1); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 500px; }
+.ranking-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.15); }
+.ranking-item:last-child { border-bottom: none; }
+.ranking-pos { font-family: var(--font-title); font-size: 24px; color: #FFC7AE; width: 36px; }
+.ranking-nome { flex: 1; font-weight: 800; color: #fff; font-size: 16px; }
+.ranking-pts { font-family: var(--font-title); font-size: 20px; color: #FF5527; }
+
+/* CRIAR SESSAO ADMIN */
+.criar-sessao-form { display: flex; flex-direction: column; gap: 12px; }
+.criar-sessao-form input { background: #FFF8F5; border: 1px solid #FFB89A; border-radius: var(--radius-sm); padding: 10px 14px; font-family: var(--font-body); font-size: 14px; color: #210000; outline: none; }
+.criar-sessao-form input:focus { border-color: #FF5527; }
+.admin-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* CARTA DESAFIO */
+.carta-desafio-reveal {
+  background: #6a4c93;
+  border-radius: var(--radius); padding: 24px; text-align: center;
+  color: #fff; display: none; flex-direction: column; gap: 12px;
+}
+.carta-desafio-reveal.visivel { display: flex; }
+.carta-desafio-reveal .cd-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.8; }
+.carta-desafio-reveal .cd-numero { font-family: var(--font-title); font-size: 64px; line-height: 1; }
+.carta-desafio-reveal .cd-texto { font-size: 16px; font-weight: 700; line-height: 1.4; }
+
+/* CHAT */
+.chat-wrap {
+  background: #fff; border-radius: var(--radius); border: 2px solid var(--cinza-border);
+  display: flex; flex-direction: column; height: 260px;
+}
+.chat-header {
+  padding: 10px 14px; border-bottom: 1px solid var(--cinza-border);
+  font-size: 12px; font-weight: 800; color: var(--cinza-muted); text-transform: uppercase; letter-spacing: 0.08em;
+}
+.chat-msgs {
+  flex: 1; overflow-y: auto; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;
+}
+.chat-msg { display: flex; flex-direction: column; gap: 2px; }
+.chat-msg .msg-autor {
+  font-size: 11px; font-weight: 800; color: var(--neg-color, var(--principal-dark));
+  display: flex; align-items: center; gap: 4px;
+}
+.chat-msg .msg-funcao {
+  font-size: 10px; background: var(--neg-light, var(--principal-light));
+  color: var(--neg-color, var(--principal-dark)); padding: 1px 6px; border-radius: 100px;
+}
+.chat-msg .msg-texto { font-size: 13px; color: var(--cinza-text); line-height: 1.4; }
+.chat-msg.proprio .msg-autor { justify-content: flex-end; }
+.chat-msg.proprio .msg-texto { text-align: right; color: var(--cinza-muted); }
+.chat-input-row {
+  display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--cinza-border);
+}
+.chat-input-row input {
+  flex: 1; border: 1px solid var(--cinza-border); border-radius: var(--radius-sm);
+  padding: 8px 12px; font-family: var(--font-body); font-size: 13px; outline: none;
+}
+.chat-input-row input:focus { border-color: var(--neg-color, var(--principal-dark)); }
+.btn-chat-send {
+  background: var(--neg-color, var(--principal-dark)); color: #fff; border: none;
+  border-radius: var(--radius-sm); padding: 8px 14px; font-family: var(--font-title);
+  font-size: 14px; cursor: pointer;
+}
+.btn-chat-send:hover { opacity: 0.85; }
+
+@media (max-width: 600px) {
+  .status-cards { grid-template-columns: repeat(3, 1fr); }
+  .cartas-grid { grid-template-columns: repeat(2, 1fr); }
+  .proj-content { padding: 20px; }
+  .admin-content { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ENTRADA -->
+<div id="tela-entrada" class="tela ativa">
+  <img src="https://i.imgur.com/LU8FtBY.png" alt="Crescimentum" style="height:36px;width:auto;filter:brightness(0) invert(1);margin-bottom:4px;">
+  <div class="entrada-logo">
+    <strong>Se Essa Rua Fosse Minha</strong>
+  </div>
+
+  <div class="entrada-box" id="box-equipe">
+    <h2>Entrar como equipe</h2>
+    <input type="text" id="input-codigo" placeholder="Código da sessão (ex: RUA01)" maxlength="10" style="text-transform:uppercase;letter-spacing:0.1em;text-align:center;">
+    <input type="text" id="input-nome" placeholder="Seu nome" maxlength="30">
+    <select id="input-funcao">
+      <option value="">Sua função na equipe...</option>
+      <option value="Liderança">Liderança</option>
+      <option value="Tesoureiro">Tesoureiro</option>
+      <option value="Observador">Observador</option>
+    </select>
+    <select id="input-negocio">
+      <option value="">Selecionar negócio...</option>
+      <option value="mercado">Mercado</option>
+      <option value="farmacia">Farmácia</option>
+      <option value="escola">Escola</option>
+      <option value="academia">Academia</option>
+      <option value="shopping">Shopping</option>
+      <option value="transporte">Transporte</option>
+    </select>
+    <button class="btn-primary" onclick="entrarJogo()">Entrar no jogo</button>
+    <div class="entrada-erro" id="erro-entrada"></div>
+
+    <div class="entrada-sep">ou</div>
+
+    <button class="btn-admin" onclick="mostrarAdmin()">Painel admin</button>
+  </div>
+</div>
+
+<!-- JOGO EQUIPE -->
+<div id="tela-jogo" class="tela">
+  <div class="jogo-header">
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      <h1 id="jogo-negocio-nome">Mercado</h1>
+      <div style="font-size:12px;opacity:0.8;" id="jogo-funcao-badge"> Liderança</div>
+    </div>
+    <div class="rodada-info" id="jogo-rodada-info">Rodada 1 de 5</div>
+  </div>
+
+  <!-- AGUARDANDO INÍCIO -->
+  <div class="aguardando" id="jogo-aguardando-inicio">
+    <div class="icone">⏳</div>
+    <h2>Aguardando início...</h2>
+    <p>O consultor vai iniciar o jogo em breve. Fique de olho!</p>
+  </div>
+
+  <!-- AGUARDANDO OUTROS -->
+  <div class="aguardando" id="jogo-aguardando-rodada" style="display:none;">
+    <div class="icone">️</div>
+    <h2>Investimentos enviados!</h2>
+    <p>Aguardando os outros negócios confirmarem seus investimentos...</p>
+  </div>
+
+  <!-- VISÃO: LIDERANÇA -->
+  <div class="jogo-content" id="visao-lideranca" style="display:none;">
+    <div class="status-cards">
+      <div class="status-card"><div class="val" id="jogo-caixa">$0</div><div class="lbl">Caixa</div></div>
+      <div class="status-card"><div class="val" id="jogo-vn">0</div><div class="lbl">Valor Negócio</div></div>
+      <div class="status-card"><div class="val" id="jogo-vc">0</div><div class="lbl">Valor Cidade</div></div>
+      <div class="status-card" style="border-color:var(--neg-color,#733909);"><div class="val" id="jogo-prosper" style="color:var(--neg-color,#733909);">0</div><div class="lbl">Prosperidade</div></div>
+    </div>
+
+    <div class="carta-desafio-reveal" id="carta-desafio-reveal">
+      <div class="cd-label">🃏 Sua carta de desafio secreto</div>
+      <div class="cd-numero" id="cd-numero">?</div>
+      <div class="cd-texto" id="cd-texto"></div>
+    </div>
+
+    <div class="dado-area" id="dado-area">
+      <div class="dado-resultado" id="dado-resultado">?</div>
+      <div class="dado-caixa" id="dado-caixa-texto">Role o dado para definir seu caixa desta rodada</div>
+      <button class="btn-dado" id="btn-dado" onclick="rolarDado()"> Rolar dado</button>
+    </div>
+
+    <div id="cartas-area" style="display:none;">
+      <div class="section-title">Escolha seus investimentos</div>
+      <div style="font-size:13px;color:var(--cinza-muted);margin-bottom:12px;">Caixa disponível: <strong id="caixa-disponivel">$0</strong></div>
+      <div class="cartas-grid" id="cartas-grid"></div>
+    </div>
+
+    <div class="resultado-rodada" id="resultado-rodada" style="display:none;">
+      <div style="font-family:var(--font-title);font-size:18px;color:var(--principal-dark);margin-bottom:4px;"> Resultado da Rodada</div>
+      <div class="resultado-item"><span>Dado</span><span class="rval" id="res-dado">-</span></div>
+      <div class="resultado-item"><span>Caixa da rodada</span><span class="rval" id="res-caixa-rodada">-</span></div>
+      <div class="resultado-item"><span>Total investido</span><span class="rval neg" id="res-investido">-</span></div>
+      <div class="resultado-item"><span>VN ganho</span><span class="rval pos" id="res-vn">-</span></div>
+      <div class="resultado-item"><span>VC ganho</span><span class="rval pos" id="res-vc">-</span></div>
+      <div class="resultado-item"><span>Caixa final</span><span class="rval pos" id="res-caixa-final">-</span></div>
+    </div>
+
+    <div class="fase2-banner" id="fase2-banner">
+      <h2> Pequenópolis é um sistema!</h2>
+      <p>Agora vocês sabem: a prosperidade da cidade depende de TODOS os negócios. O que muda nas suas decisões?</p>
+    </div>
+
+    <div>
+      <div class="section-title" style="margin-bottom:10px;"> Chat da equipe</div>
+      <div class="chat-wrap">
+        <div class="chat-header">Apenas sua equipe vê estas mensagens</div>
+        <div class="chat-msgs" id="chat-msgs-lider"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input-lider" placeholder="Escreva uma mensagem..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChat('lider')">
+          <button class="btn-chat-send" onclick="enviarChat('lider')">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirmar-bar" id="confirmar-bar" style="display:none;">
+    <div class="confirmar-info">
+      <strong id="cartas-count">0</strong> cartas |
+      Custo: <strong id="custo-total">$0</strong> |
+      VN: <strong id="vn-total">+0</strong> |
+      VC: <strong id="vc-total">+0</strong>
+    </div>
+    <button class="btn-confirmar" id="btn-confirmar" onclick="confirmarInvestimentos()">Confirmar</button>
+  </div>
+
+  <!-- VISÃO: TESOUREIRO -->
+  <div class="jogo-content" id="visao-tesoureiro" style="display:none;">
+
+    <div style="background:var(--principal-light);border-radius:var(--radius);padding:16px;border:2px solid var(--principal-mid);">
+      <div style="font-size:12px;font-weight:800;color:var(--principal-dark);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;"> Sua missão</div>
+      <div style="font-size:14px;color:var(--principal-dark);">Acompanhe o caixa e os investimentos. Sugira as melhores cartas no chat para a Liderança decidir!</div>
+    </div>
+
+    <div class="status-cards">
+      <div class="status-card"><div class="val" id="tes-caixa">$0</div><div class="lbl">Caixa atual</div></div>
+      <div class="status-card"><div class="val" id="tes-vn">0</div><div class="lbl">Valor Negócio</div></div>
+      <div class="status-card"><div class="val" id="tes-vc">0</div><div class="lbl">Valor Cidade</div></div>
+      <div class="status-card" style="border-color:var(--neg-color,#733909);"><div class="val" id="tes-prosper" style="color:var(--neg-color,#733909);">0</div><div class="lbl">Prosperidade</div></div>
+    </div>
+
+    <!-- HISTÓRICO DE CAIXA -->
+    <div>
+      <div class="section-title" style="margin-bottom:10px;"> Histórico do caixa</div>
+      <div id="tes-historico" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <!-- CARTAS SOMENTE LEITURA -->
+    <div id="tes-cartas-area" style="display:none;">
+      <div class="section-title">🃏 Cartas disponíveis</div>
+      <div style="font-size:13px;color:var(--cinza-muted);margin:6px 0 12px;">Caixa disponível: <strong id="tes-caixa-disponivel">$0</strong> — Sugira as melhores no chat!</div>
+      <div class="cartas-grid" id="tes-cartas-grid"></div>
+    </div>
+
+    <div>
+      <div class="section-title" style="margin-bottom:10px;"> Chat da equipe</div>
+      <div class="chat-wrap">
+        <div class="chat-header">Apenas sua equipe vê estas mensagens</div>
+        <div class="chat-msgs" id="chat-msgs-tes"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input-tes" placeholder="Sugira investimentos..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChat('tes')">
+          <button class="btn-chat-send" onclick="enviarChat('tes')">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISÃO: OBSERVADOR -->
+  <div class="jogo-content" id="visao-observador" style="display:none;">
+
+    <div style="background:#fff3e0;border-radius:var(--radius);padding:16px;border:2px solid var(--amarelo);">
+      <div style="font-size:12px;font-weight:800;color:#8a4a00;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">️ Sua missão</div>
+      <div style="font-size:14px;color:#8a4a00;">Você é os olhos da equipe! Monitore os outros negócios e traga inteligência pro chat.</div>
+    </div>
+
+    <div class="status-cards">
+      <div class="status-card"><div class="val" id="obs-caixa">$0</div><div class="lbl">Nosso caixa</div></div>
+      <div class="status-card"><div class="val" id="obs-vn">0</div><div class="lbl">Nosso VN</div></div>
+      <div class="status-card"><div class="val" id="obs-vc">0</div><div class="lbl">Nosso VC</div></div>
+      <div class="status-card" style="border-color:var(--neg-color,#733909);"><div class="val" id="obs-prosper" style="color:var(--neg-color,#733909);">0</div><div class="lbl">Prosperidade</div></div>
+    </div>
+
+    <!-- PAINEL OUTROS NEGÓCIOS -->
+    <div>
+      <div class="section-title" style="margin-bottom:10px;">️ Status dos outros negócios</div>
+      <div id="obs-negocios" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <div>
+      <div class="section-title" style="margin-bottom:10px;"> Chat da equipe</div>
+      <div class="chat-wrap">
+        <div class="chat-header">Compartilhe o que está vendo!</div>
+        <div class="chat-msgs" id="chat-msgs-obs"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input-obs" placeholder="Relate o que viu nos outros negócios..." maxlength="200" onkeydown="if(event.key==='Enter') enviarChat('obs')">
+          <button class="btn-chat-send" onclick="enviarChat('obs')">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ADMIN -->
+<div id="tela-admin" class="tela">
+  <div class="admin-header">
+    <h1>️ Admin — Se Essa Rua Fosse Minha</h1>
+    <button class="btn-admin-action" style="background:#FF5527;color:#fff;" onclick="voltarEntrada()">Sair</button>
+  </div>
+  <div class="admin-content">
+
+    <!-- CRIAR SESSÃO -->
+    <div class="admin-section" id="admin-criar-section">
+      <h2>Criar sessão</h2>
+      <div class="criar-sessao-form">
+        <div class="admin-btns">
+          <input type="text" id="admin-codigo-input" placeholder="Código da sessão (ex: RUA01)" maxlength="10" style="text-transform:uppercase;flex:1;">
+          <button class="btn-admin-action btn-verde" onclick="criarSessao()">Criar sessão</button>
+        </div>
+      </div>
+      <div style="height:1px;background:#FFB89A;margin:16px 0;"></div>
+      <h2>Entrar em sessão existente</h2>
+      <div class="admin-btns">
+        <input type="text" id="admin-join-input" placeholder="Código da sessão existente..." style="flex:1;background:#FFF8F5;border:1px solid #FFB89A;border-radius:var(--radius-sm);padding:10px 14px;font-family:var(--font-body);font-size:14px;color:#210000;outline:none;">
+        <button class="btn-admin-action btn-verde" onclick="adminEntrarSessao()">Entrar</button>
+      </div>
+    </div>
+
+    <!-- CONTROLE DA SESSÃO -->
+    <div class="admin-section" id="admin-controle-section" style="display:none;">
+      <h2>Sessão: <span id="admin-codigo-display">-</span></h2>
+      <div class="admin-grid" id="admin-stats-grid">
+        <div class="admin-stat"><div class="av" id="adm-rodada">0/5</div><div class="al">Rodada atual</div></div>
+        <div class="admin-stat"><div class="av" id="adm-equipes">0</div><div class="al">Equipes conectadas</div></div>
+        <div class="admin-stat"><div class="av" id="adm-confirmados">0</div><div class="al">Confirmaram</div></div>
+        <div class="admin-stat"><div class="av" id="adm-fase">1</div><div class="al">Fase atual</div></div>
+      </div>
+    </div>
+
+    <!-- NEGÓCIOS -->
+    <div class="admin-section" id="admin-negocios-section" style="display:none;">
+      <h2>Negócios</h2>
+      <div id="admin-negocios-lista"></div>
+    </div>
+
+    <!-- EVENTO ESPECIAL -->
+    <div class="admin-section" id="admin-evento-section" style="display:none;">
+      <h2>Evento da Rodada</h2>
+      <div id="admin-evento-desc"></div>
+
+      <!-- BÔNUS ETAPA 2 -->
+      <div id="admin-bonus-section" style="display:none;margin-top:16px;">
+        <div style="font-size:13px;color:#733909;margin-bottom:10px;">Selecione o negócio que receberá <strong style="color:#FF5527;">renda base x6</strong> nesta rodada:</div>
+        <div class="admin-btns" style="flex-wrap:wrap;" id="admin-bonus-btns"></div>
+        <div style="font-size:12px;color:#FF5527;margin-top:8px;display:none;" id="admin-bonus-aplicado">Bônus aplicado!</div>
+      </div>
+
+      <!-- ETAPA 4 — NOTA DA LIDERANÇA -->
+      <div id="admin-nota-section" style="display:none;margin-top:16px;">
+        <div style="font-size:13px;color:#733909;margin-bottom:10px;">Insira a nota (1–6) recebida por cada negócio. Essa nota multiplica a renda base nesta rodada:</div>
+        <div id="admin-nota-lista" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <!-- DOAÇÃO -->
+      <div id="admin-doacao-section" style="margin-top:16px;">
+        <div style="font-size:13px;color:#733909;margin-bottom:10px;font-weight:800;">Transferência de caixa entre negócios</div>
+        <div class="admin-btns" style="flex-wrap:wrap;gap:8px;">
+          <select id="doacao-origem" style="flex:1;background:#FFF8F5;border:1px solid #FFB89A;border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-body);font-size:13px;color:#210000;outline:none;">
+            <option value="">De qual negócio...</option>
+          </select>
+          <select id="doacao-destino" style="flex:1;background:#FFF8F5;border:1px solid #FFB89A;border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-body);font-size:13px;color:#210000;outline:none;">
+            <option value="">Para qual negócio...</option>
+          </select>
+          <input type="number" id="doacao-valor" placeholder="Valor $" min="1" style="width:100px;background:#FFF8F5;border:1px solid #FFB89A;border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-body);font-size:13px;color:#210000;outline:none;">
+          <button class="btn-admin-action btn-verde" onclick="aplicarDoacao()">Transferir</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AÇÕES -->
+    <div class="admin-section" id="admin-acoes-section" style="display:none;">
+      <h2>Ações</h2>
+      <div class="admin-btns" style="flex-wrap:wrap;">
+        <button class="btn-admin-action btn-verde" id="btn-iniciar" onclick="iniciarJogo()">Iniciar jogo</button>
+        <button class="btn-admin-action btn-verde" id="btn-avancar" onclick="avancarRodada()" disabled>Avançar rodada</button>
+        <button class="btn-admin-action btn-verde" id="btn-fase2" onclick="revelarFase2()" disabled>Revelar Fase 2</button>
+        <button class="btn-admin-action btn-vermelho" id="btn-encerrar" onclick="encerrarJogo()" disabled>Encerrar jogo</button>
+        <button class="btn-admin-action btn-verde" onclick="limparSessao()">Limpar sessão</button>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div class="admin-section" id="admin-log-section" style="display:none;">
+      <h2>Log</h2>
+      <div class="admin-log" id="admin-log"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, off, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB7O-0pxrb_hGKHigkQNdC851fysxl5Z_8",
+  authDomain: "teste-jogo-crescimentum.firebaseapp.com",
+  databaseURL: "https://teste-jogo-crescimentum-default-rtdb.firebaseio.com",
+  projectId: "teste-jogo-crescimentum",
+  storageBucket: "teste-jogo-crescimentum.firebasestorage.app",
+  messagingSenderId: "506040174576",
+  appId: "1:506040174576:web:8dc39cb8243c9947207f35"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ===== DADOS DOS NEGÓCIOS =====
+const NEGOCIOS = {
+  mercado: {
+    nome: 'Mercado', emoji: '', rendaBase: 80,
+    vnBase: 1, vcBase: 2,
+    cartas: [
+      { nome: 'Expansão do hortifruti', custo: 80, vn: 3, vc: 2 },
+      { nome: 'Clube de pontos', custo: 160, vn: 4, vc: 3 },
+      { nome: 'Entrega a domicílio', custo: 160, vn: 5, vc: 4 },
+      { nome: 'Construção de depósito', custo: 240, vn: 2, vc: 1 },
+      { nome: 'Instalação de caixa eletrônico', custo: 320, vn: 1, vc: 5 },
+      { nome: 'Programa Compre e Doe para cestas básicas', custo: 480, vn: 4, vc: 6 },
+      { nome: 'Parceria com produtores locais', custo: 400, vn: 1, vc: 2 },
+      { nome: 'Climatização sustentável', custo: 480, vn: 1, vc: 4 },
+      { nome: 'Oferta de produtos importados', custo: 80, vn: 4, vc: 0 },
+      { nome: 'Ações de combate ao desperdício', custo: 80, vn: -3, vc: 3 },
+      { nome: 'Venda casada de produtos com alto estoque', custo: 160, vn: 8, vc: -5 },
+      { nome: 'Prioridade de estoque para produtos com maior data de validade', custo: 240, vn: 1, vc: -2 },
+    ]
+  },
+  farmacia: {
+    nome: 'Farmácia', emoji: '', rendaBase: 50,
+    vnBase: -2, vcBase: 1,
+    cartas: [
+      { nome: 'Descarte de remédios', custo: 50, vn: 2, vc: 2 },
+      { nome: 'Campanhas de prevenção a epidemias', custo: 150, vn: 3, vc: 3 },
+      { nome: 'Sistema de ofertas exclusivas', custo: 100, vn: 2, vc: 1 },
+      { nome: 'Serviço de entrega de remédios', custo: 200, vn: 4, vc: 2 },
+      { nome: 'Instalação de laboratório', custo: 250, vn: 5, vc: 6 },
+      { nome: 'Centro de informação ao paciente', custo: 250, vn: 3, vc: 5 },
+      { nome: 'Ampliação do estoque', custo: 250, vn: 3, vc: 3 },
+      { nome: 'Campanha de vacinação', custo: 300, vn: 4, vc: 5 },
+      { nome: 'Parceria com clínicas', custo: 50, vn: 1, vc: 0 },
+      { nome: 'Atendimento 24h', custo: 50, vn: -3, vc: 3 },
+      { nome: 'Promoção relâmpago para liberar estoque', custo: 100, vn: 4, vc: -2 },
+      { nome: 'Ofertas exclusivas para clientes premium', custo: 150, vn: 5, vc: -4 },
+    ]
+  },
+  escola: {
+    nome: 'Escola', emoji: '', rendaBase: 60,
+    vnBase: 0, vcBase: 1,
+    cartas: [
+      { nome: 'Laboratório de informática', custo: 60, vn: 2, vc: 1 },
+      { nome: 'Biblioteca comunitária', custo: 120, vn: 3, vc: 3 },
+      { nome: 'Laboratório de ciências', custo: 180, vn: 3, vc: 2 },
+      { nome: 'Programa de bolsas de estudos', custo: 240, vn: 1, vc: 5 },
+      { nome: 'Espaço maker comunitário', custo: 300, vn: 4, vc: 2 },
+      { nome: 'Reforma das salas de aula', custo: 360, vn: 3, vc: 5 },
+      { nome: 'Atividades extracurriculares', custo: 300, vn: 1, vc: 3 },
+      { nome: 'Quadras poliesportivas', custo: 300, vn: 2, vc: 3 },
+      { nome: 'Plataforma de ensino digital', custo: 120, vn: 1, vc: 1 },
+      { nome: 'Reimpressão de materiais didáticos', custo: 60, vn: 1, vc: -1 },
+      { nome: 'Aumento da mensalidade', custo: 120, vn: 1, vc: -2 },
+      { nome: 'Campanha de marketing para vestibular', custo: 180, vn: 3, vc: -1 },
+    ]
+  },
+  academia: {
+    nome: 'Academia', emoji: '', rendaBase: 50,
+    vnBase: 2, vcBase: 0,
+    cartas: [
+      { nome: 'Piscina de aquecimento solar', custo: 50, vn: 2, vc: 1 },
+      { nome: 'Parceria com personal trainers', custo: 100, vn: 1, vc: 5 },
+      { nome: 'Sala de ginástica', custo: 100, vn: 5, vc: 3 },
+      { nome: 'Modernização dos equipamentos', custo: 200, vn: 2, vc: 2 },
+      { nome: 'Eventos em parceria com escolas', custo: 200, vn: 3, vc: 6 },
+      { nome: 'Recreação para crianças', custo: 250, vn: 2, vc: 3 },
+      { nome: 'App de treino personalizado', custo: 250, vn: 1, vc: 3 },
+      { nome: 'Espaço de convivência', custo: 300, vn: 2, vc: 3 },
+      { nome: 'Campo de futebol e churrasqueira', custo: 50, vn: 5, vc: 3 },
+      { nome: 'Eventos gratuitos para a comunidade', custo: 50, vn: -2, vc: 2 },
+      { nome: 'Cadeira de massagem', custo: 100, vn: 3, vc: -2 },
+      { nome: 'Eventos esportivos públicos', custo: 150, vn: 6, vc: -5 },
+    ]
+  },
+  shopping: {
+    nome: 'Shopping', emoji: '', rendaBase: 100,
+    vnBase: -1, vcBase: -2,
+    cartas: [
+      { nome: 'Eventos culturais e shows', custo: 100, vn: 1, vc: 6 },
+      { nome: 'Feira de negócios locais', custo: 200, vn: 2, vc: 4 },
+      { nome: 'Sistema de vagas inteligentes', custo: 200, vn: 3, vc: 3 },
+      { nome: 'Praça de alimentação', custo: 300, vn: 4, vc: 1 },
+      { nome: 'Espaço de recreação infantil', custo: 400, vn: 3, vc: 2 },
+      { nome: 'Espaço exclusivo clientes VIP', custo: 200, vn: 1, vc: 0 },
+      { nome: 'Cinema e teatro', custo: 500, vn: 5, vc: 5 },
+      { nome: 'Iluminação sustentável', custo: 500, vn: 1, vc: 2 },
+      { nome: 'Programa de profissionalização para populações vulneráveis', custo: 600, vn: 0, vc: 4 },
+      { nome: 'Espaço para ONGs e projetos sociais', custo: 100, vn: -4, vc: 5 },
+      { nome: 'Estacionamento com variação de tarifas', custo: 200, vn: 10, vc: -9 },
+      { nome: 'Decoração de natal especial', custo: 300, vn: 2, vc: -1 },
+    ]
+  },
+  transporte: {
+    nome: 'Transporte', emoji: '', rendaBase: 60,
+    vnBase: 1, vcBase: -1,
+    cartas: [
+      { nome: 'Aquisição de novos veículos', custo: 60, vn: 2, vc: 1 },
+      { nome: 'Treinamento para motoristas', custo: 120, vn: 3, vc: 4 },
+      { nome: 'Parcerias com empresas e escolas', custo: 120, vn: 3, vc: 2 },
+      { nome: 'Extensão do horário de atuação', custo: 180, vn: 1, vc: 5 },
+      { nome: 'Manutenção de veículos', custo: 240, vn: 2, vc: 3 },
+      { nome: 'Ampliação da área de atuação', custo: 360, vn: 3, vc: 7 },
+      { nome: 'Modernização da frota', custo: 300, vn: 1, vc: 2 },
+      { nome: 'Criação de central de atendimento', custo: 300, vn: 0, vc: 4 },
+      { nome: 'Redução de rotas em áreas menos lucrativas', custo: 180, vn: 3, vc: -1 },
+      { nome: 'Novas linhas interestaduais', custo: 120, vn: 1, vc: 1 },
+      { nome: 'Distribuição de panfletos turísticos', custo: 60, vn: 1, vc: -1 },
+      { nome: 'Espaço de propaganda em veículos', custo: 120, vn: 2, vc: -1 },
+    ]
+  }
+};
+
+const EVENTOS = {
+  1: { titulo: 'Mês 1 — Novas oportunidades', desc: 'Rodada normal. Cada negócio joga e decide seus investimentos.' },
+  2: { titulo: 'Mês 2 — Negócios se destacam', desc: 'Lideranças escolhem um negócio para receber bônus de caixa. Combine com o grupo!' },
+  3: { titulo: 'Mês 3 — Agir com inovação', desc: 'Lideranças trocam de negócio por uma rodada, trazendo outra perspectiva.' },
+  4: { titulo: 'Mês 4 — Decisões e consequências', desc: 'Cada negócio dá uma nota de 1 a 6 para a liderança do negócio anterior. Essa nota multiplica a renda-base na rodada atual.' },
+  5: { titulo: 'Mês 5 — Resultado consciente', desc: 'Cada negócio pega uma carta de desafio secreto. Cartas: 1-Renda base x6 | 2-Troque pessoa | 3-Renda base x1 | 4-Decisão conjunta | 5-Troque liderança | 6-Jogue 2 dados (só ímpares)' },
+};
+
+const CARTAS_DESAFIO = [
+  'Seu negócio terá o maior caixa nessa rodada! Renda base x6',
+  'Troque uma pessoa de equipe. De qualquer negócio para qualquer negócio.',
+  'Seu negócio terá renda mínima nessa rodada. Renda base x1',
+  'Escolha um negócio para tomar decisões em conjunto. O caixa de vocês será dividido.',
+  'Escolha uma liderança para trocar de lugar com você nessa rodada.',
+  'Jogue 2 dados — apenas números ímpares são válidos. Se nenhum, multiplique por 1.',
+];
+
+// ESTADO LOCAL
+let sessionCode = '';
+let meuNegocio = '';
+let meuNome = '';
+let minhaFuncao = '';
+let dadoRolado = null;
+let cartasSelecionadas = [];
+let sessaoRef = null;
+let chatRef = null;
+let isAdmin = false;
+
+// UTILS
+function showToast(msg, color = '#733909') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function mostrarTela(id) {
+  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
+}
+
+function formatDinheiro(v) { return '$' + v; }
+
+// ENTRADA
+window.mostrarProjecao = function() {
+  mostrarTela('tela-projecao');
+  const codigo = prompt('Código da sessão para projeção:');
+  if (!codigo) { mostrarTela('tela-entrada'); return; }
+  iniciarProjecao(codigo.toUpperCase().trim());
+};
+
+window.mostrarAdmin = function() {
+  const senha = prompt('Senha admin:');
+  if (senha !== 'cresci2026') { showToast('Senha incorreta!', '#e63946'); return; }
+  isAdmin = true;
+  mostrarTela('tela-admin');
+  tentarReconectarAdmin();
+};
+
+window.voltarEntrada = function() { mostrarTela('tela-entrada'); };
+
+window.entrarJogo = async function() {
+  const codigo = document.getElementById('input-codigo').value.trim().toUpperCase();
+  const negocio = document.getElementById('input-negocio').value;
+  const nome = document.getElementById('input-nome').value.trim();
+  const funcao = document.getElementById('input-funcao').value;
+  const erro = document.getElementById('erro-entrada');
+  erro.textContent = '';
+  if (!codigo || !negocio || !nome || !funcao) { erro.textContent = 'Preencha todos os campos!'; return; }
+
+  const snap = await get(ref(db, `rua/${codigo}`));
+  if (!snap.exists()) { erro.textContent = 'Sessão não encontrada. Confirme o código com o consultor.'; return; }
+
+  sessionCode = codigo;
+  meuNegocio = negocio;
+  meuNome = nome;
+  minhaFuncao = funcao;
+  localStorage.setItem('rua-session', JSON.stringify({ sessionCode, meuNegocio, meuNome, minhaFuncao }));
+
+  await update(ref(db, `rua/${codigo}/negocios/${negocio}`), {
+    conectado: true,
+    nome: NEGOCIOS[negocio].nome,
+    vn: NEGOCIOS[negocio].vnBase,
+    vc: NEGOCIOS[negocio].vcBase,
+    caixa: 0
+  });
+  iniciarJogo();
+};
+
+// RECONEXÃO
+const saved = localStorage.getItem('rua-session');
+if (saved) {
+  try {
+    const s = JSON.parse(saved);
+    get(ref(db, `rua/${s.sessionCode}`)).then(snap => {
+      if (snap.exists() && snap.val().status !== 'encerrado') {
+        sessionCode = s.sessionCode;
+        meuNegocio = s.meuNegocio;
+        meuNome = s.meuNome || '';
+        minhaFuncao = s.minhaFuncao || '';
+        iniciarJogo();
+      } else {
+        localStorage.removeItem('rua-session');
+      }
+    });
+  } catch(e) { localStorage.removeItem('rua-session'); }
+}
+
+// JOGO EQUIPE
+function iniciarJogo() {
+  mostrarTela('tela-jogo');
+  const neg = NEGOCIOS[meuNegocio];
+  document.getElementById('tela-jogo').className = `tela ativa neg-${meuNegocio}`;
+  document.getElementById('jogo-negocio-nome').textContent = neg.nome;
+  document.getElementById('jogo-funcao-badge').textContent =
+    minhaFuncao === 'Liderança' ? ' Liderança' :
+    minhaFuncao === 'Tesoureiro' ? ' Tesoureiro' : '️ Observador';
+
+  if (sessaoRef) off(sessaoRef);
+  sessaoRef = ref(db, `rua/${sessionCode}`);
+  onValue(sessaoRef, (snap) => {
+    if (!snap.exists()) return;
+    atualizarTelaJogo(snap.val());
+  });
+
+  if (chatRef) off(chatRef);
+  chatRef = ref(db, `rua/${sessionCode}/chat/${meuNegocio}`);
+  onValue(chatRef, (snap) => {
+    const ids = ['chat-msgs-lider', 'chat-msgs-tes', 'chat-msgs-obs'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+    if (!snap.exists()) return;
+    const lista = Object.values(snap.val()).sort((a,b) => a.ts - b.ts);
+    lista.forEach(msg => {
+      const proprio = msg.nome === meuNome;
+      const html = `
+        <div class="chat-msg ${proprio ? 'proprio' : ''}">
+          <div class="msg-autor">${msg.nome}<span class="msg-funcao">${msg.funcao}</span></div>
+          <div class="msg-texto">${msg.texto}</div>
+        </div>`;
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.innerHTML += html; el.scrollTop = el.scrollHeight; }
+      });
+    });
+  });
+}
+
+function mostrarVisao(visao) {
+  ['visao-lideranca','visao-tesoureiro','visao-observador'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  if (visao) document.getElementById(visao).style.display = 'flex';
+}
+
+async function atualizarTelaJogo(data) {
+  const negData = data.negocios?.[meuNegocio] || {};
+  const rodada = data.rodada || 0;
+  const status = data.status || 'aguardando';
+  const fase = data.fase || 1;
+  const todos = data.negocios || {};
+
+  document.getElementById('jogo-rodada-info').textContent = rodada > 0 ? `Rodada ${rodada} de 5` : 'Aguardando início';
+
+  // Status cards por função
+  const caixa = negData.caixa || 0;
+  const vn = negData.vn || 0;
+  const vc = negData.vc || 0;
+  const prosper = Math.round((vn * vc) / 25 * 10) / 10;
+  ['jogo-caixa','tes-caixa','obs-caixa'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = formatDinheiro(caixa); });
+  ['jogo-vn','tes-vn','obs-vn'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = vn; });
+  ['jogo-vc','tes-vc','obs-vc'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = vc; });
+  ['jogo-prosper','tes-prosper','obs-prosper'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = prosper; });
+
+  // Fase 2
+  const f2 = document.getElementById('fase2-banner');
+  if (fase === 2) f2.classList.add('visivel'); else f2.classList.remove('visivel');
+
+  if (status === 'aguardando') {
+    document.getElementById('jogo-aguardando-inicio').style.display = 'flex';
+    document.getElementById('jogo-aguardando-rodada').style.display = 'none';
+    document.getElementById('confirmar-bar').style.display = 'none';
+    mostrarVisao(null);
+    return;
+  }
+
+  document.getElementById('jogo-aguardando-inicio').style.display = 'none';
+
+  const rodadaStatus = negData.rodadaStatus || '';
+
+  if (rodadaStatus === 'confirmado') {
+    mostrarVisao(null);
+    document.getElementById('confirmar-bar').style.display = 'none';
+    document.getElementById('jogo-aguardando-rodada').style.display = 'flex';
+    return;
+  }
+
+  document.getElementById('jogo-aguardando-rodada').style.display = 'none';
+  document.getElementById('confirmar-bar').style.display = 'none';
+
+  // Mostrar visão correta
+  if (minhaFuncao === 'Liderança') {
+    mostrarVisao('visao-lideranca');
+    atualizarVisaoLider(negData, rodada, fase);
+  } else if (minhaFuncao === 'Tesoureiro') {
+    mostrarVisao('visao-tesoureiro');
+    atualizarVisaoTesoureiro(negData, rodada);
+  } else {
+    mostrarVisao('visao-observador');
+    atualizarVisaoObservador(todos, rodada, fase);
+  }
+}
+
+async function atualizarVisaoLider(negData, rodada, fase) {
+  // Carta desafio mês 5
+  const cartaDesafioEl = document.getElementById('carta-desafio-reveal');
+  if (rodada === 5) {
+    let cartaNum = negData.cartaDesafio;
+    if (!cartaNum) {
+      cartaNum = Math.floor(Math.random() * 6) + 1;
+      await update(ref(db, `rua/${sessionCode}/negocios/${meuNegocio}`), { cartaDesafio: cartaNum });
+    }
+    document.getElementById('cd-numero').textContent = cartaNum;
+    document.getElementById('cd-texto').textContent = CARTAS_DESAFIO[cartaNum - 1];
+    cartaDesafioEl.classList.add('visivel');
+  } else {
+    cartaDesafioEl.classList.remove('visivel');
+  }
+
+  dadoRolado = negData.dadoAtual || null;
+  if (dadoRolado) {
+    document.getElementById('dado-resultado').textContent = dadoRolado;
+    const caixaRodada = NEGOCIOS[meuNegocio].rendaBase * dadoRolado;
+    const caixaTotal = (negData.caixa || 0) + caixaRodada;
+    document.getElementById('dado-caixa-texto').textContent = `Caixa disponível: ${formatDinheiro(caixaTotal)}`;
+    document.getElementById('btn-dado').disabled = true;
+    document.getElementById('dado-area').style.display = 'block';
+    mostrarCartas(caixaTotal, negData);
+  } else {
+    document.getElementById('dado-resultado').textContent = '?';
+    document.getElementById('dado-caixa-texto').textContent = 'Role o dado para definir seu caixa desta rodada';
+    document.getElementById('btn-dado').disabled = false;
+    document.getElementById('dado-area').style.display = 'block';
+    document.getElementById('cartas-area').style.display = 'none';
+    document.getElementById('resultado-rodada').style.display = 'none';
+  }
+}
+
+function atualizarVisaoTesoureiro(negData, rodada) {
+  // Histórico de rodadas
+  const historico = negData.historico || {};
+  const histEl = document.getElementById('tes-historico');
+  const hist = Object.values(historico).sort((a,b) => a.rodada - b.rodada);
+  if (hist.length === 0) {
+    histEl.innerHTML = '<div style="font-size:13px;color:var(--cinza-muted);padding:8px 0;">Nenhuma rodada concluída ainda.</div>';
+  } else {
+    histEl.innerHTML = hist.map(h => `
+      <div class="resultado-rodada" style="padding:10px 14px;">
+        <div style="font-weight:800;font-size:13px;color:var(--principal-dark);margin-bottom:4px;">Rodada ${h.rodada}</div>
+        <div class="resultado-item"><span>Dado</span><span class="rval">${h.dado}</span></div>
+        <div class="resultado-item"><span>Caixa da rodada</span><span class="rval">${formatDinheiro(h.caixaRodada)}</span></div>
+        <div class="resultado-item"><span>Investido</span><span class="rval neg">-${formatDinheiro(h.custo)}</span></div>
+        <div class="resultado-item"><span>VN ganho</span><span class="rval pos">+${h.vnGanho}</span></div>
+        <div class="resultado-item"><span>VC ganho</span><span class="rval pos">+${h.vcGanho}</span></div>
+        <div class="resultado-item"><span>Caixa final</span><span class="rval pos">${formatDinheiro(h.caixaFinal)}</span></div>
+      </div>`).join('');
+  }
+
+  // Cartas somente leitura
+  const dado = negData.dadoAtual;
+  const tesCartasArea = document.getElementById('tes-cartas-area');
+  if (dado) {
+    const caixaRodada = NEGOCIOS[meuNegocio].rendaBase * dado;
+    const caixaTotal = (negData.caixa || 0) + caixaRodada;
+    document.getElementById('tes-caixa-disponivel').textContent = formatDinheiro(caixaTotal);
+    tesCartasArea.style.display = 'block';
+    const neg = NEGOCIOS[meuNegocio];
+    document.getElementById('tes-cartas-grid').innerHTML = neg.cartas.map((carta, i) => `
+      <div class="carta indisponivel" style="cursor:default;">
+        <div class="carta-nome">${carta.nome}</div>
+        <div class="carta-stats">
+          <div class="carta-stat custo"><span>Custo</span><span class="sval">${formatDinheiro(carta.custo)}</span></div>
+          <div class="carta-stat vn"><span>VN</span><span class="sval">${carta.vn > 0 ? '+' : ''}${carta.vn}</span></div>
+          <div class="carta-stat vc"><span>VC</span><span class="sval">${carta.vc > 0 ? '+' : ''}${carta.vc}</span></div>
+        </div>
+      </div>`).join('');
+  } else {
+    tesCartasArea.style.display = 'none';
+  }
+}
+
+function atualizarVisaoObservador(todos, rodada, fase) {
+  const obsEl = document.getElementById('obs-negocios');
+  const outros = Object.entries(todos).filter(([key]) => key !== meuNegocio);
+  if (outros.length === 0) {
+    obsEl.innerHTML = '<div style="font-size:13px;color:var(--cinza-muted);">Nenhum outro negócio conectado ainda.</div>';
+    return;
+  }
+  obsEl.innerHTML = outros.map(([key, val]) => {
+    const neg = NEGOCIOS[key];
+    if (!neg) return '';
+    const confirmado = val.rodadaStatus === 'confirmado';
+    return `
+      <div style="background:#fff;border-radius:var(--radius-sm);padding:14px;border:2px solid ${confirmado ? '#FF5527' : 'var(--cinza-border)'};">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-weight:800;font-size:15px;">${neg.nome}</div>
+          <div style="font-size:11px;font-weight:800;padding:3px 10px;border-radius:100px;background:${confirmado ? '#FFC7AE' : '#f8f9fa'};color:${confirmado ? '#733909' : '#6c757d'};">
+            ${confirmado ? ' Confirmou' : '⏳ Jogando'}
+          </div>
+        </div>
+        <div style="display:flex;gap:16px;">
+          <div style="text-align:center;"><div style="font-family:var(--font-title);font-size:20px;color:#733909;">${formatDinheiro(val.caixa || 0)}</div><div style="font-size:11px;color:var(--cinza-muted);">Caixa</div></div>
+          <div style="text-align:center;"><div style="font-family:var(--font-title);font-size:20px;color:#457b9d;">${val.vn || 0}</div><div style="font-size:11px;color:var(--cinza-muted);">VN</div></div>
+          ${fase === 2 ? `<div style="text-align:center;"><div style="font-family:var(--font-title);font-size:20px;color:#FF5527;">${val.vc || 0}</div><div style="font-size:11px;color:var(--cinza-muted);">VC</div></div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+window.enviarChat = async function(origem) {
+  const inputId = origem === 'lider' ? 'chat-input-lider' : origem === 'tes' ? 'chat-input-tes' : 'chat-input-obs';
+  const input = document.getElementById(inputId);
+  const texto = input.value.trim();
+  if (!texto) return;
+  await push(ref(db, `rua/${sessionCode}/chat/${meuNegocio}`), {
+    nome: meuNome, funcao: minhaFuncao, texto, ts: Date.now()
+  });
+  input.value = '';
+};
+
+window.rolarDado = async function() {
+  document.getElementById('btn-dado').disabled = true;
+  const snapAtual = await get(ref(db, `rua/${sessionCode}`));
+  const dataAtual = snapAtual.val() || {};
+  const negDataAtual = dataAtual.negocios?.[meuNegocio] || {};
+  const rodadaAtual = dataAtual.rodada || 1;
+  const neg = NEGOCIOS[meuNegocio];
+
+  // Etapa 4 — nota recebida é o multiplicador
+  let val;
+  if (rodadaAtual === 4 && negDataAtual.notaRodada) {
+    val = negDataAtual.notaRodada;
+    document.getElementById('dado-resultado').textContent = val;
+    document.getElementById('dado-caixa-texto').textContent = `Nota recebida: ${val} — Caixa: ${formatDinheiro(neg.rendaBase * val)}`;
+  } else {
+    val = Math.floor(Math.random() * 6) + 1;
+    document.getElementById('dado-resultado').textContent = val;
+    document.getElementById('dado-caixa-texto').textContent = `Caixa desta rodada: ${formatDinheiro(neg.rendaBase * val)}`;
+  }
+
+  dadoRolado = val;
+  const caixaRodada = neg.rendaBase * val;
+  const caixaTotal = (negDataAtual.caixa || 0) + caixaRodada;
+  document.getElementById('dado-caixa-texto').textContent += ` | Total disponível: ${formatDinheiro(caixaTotal)}`;
+  await update(ref(db, `rua/${sessionCode}/negocios/${meuNegocio}`), { dadoAtual: val });
+  mostrarCartas(caixaTotal, negDataAtual);
+};
+
+function mostrarCartas(caixaDisponivel, negData) {
+  const neg = NEGOCIOS[meuNegocio];
+  document.getElementById('cartas-area').style.display = 'block';
+  document.getElementById('confirmar-bar').style.display = 'flex';
+  document.getElementById('caixa-disponivel').textContent = formatDinheiro(caixaDisponivel);
+  cartasSelecionadas = [];
+  atualizarConfirmarBar(caixaDisponivel);
+
+  const grid = document.getElementById('cartas-grid');
+  grid.innerHTML = neg.cartas.map((carta, i) => `
+    <div class="carta" id="carta-${i}" onclick="toggleCarta(${i}, ${caixaDisponivel})">
+      <div class="carta-check"></div>
+      <div class="carta-nome">${carta.nome}</div>
+      <div class="carta-stats">
+        <div class="carta-stat custo"><span>Custo</span><span class="sval">${formatDinheiro(carta.custo)}</span></div>
+        <div class="carta-stat vn"><span>VN</span><span class="sval">${carta.vn > 0 ? '+' : ''}${carta.vn}</span></div>
+        <div class="carta-stat vc"><span>VC</span><span class="sval">${carta.vc > 0 ? '+' : ''}${carta.vc}</span></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.toggleCarta = function(i, caixaDisponivel) {
+  const idx = cartasSelecionadas.indexOf(i);
+  const carta = NEGOCIOS[meuNegocio].cartas[i];
+  const custoAtual = cartasSelecionadas.reduce((s, ci) => s + NEGOCIOS[meuNegocio].cartas[ci].custo, 0);
+
+  if (idx === -1) {
+    if (custoAtual + carta.custo > caixaDisponivel) {
+      showToast('Caixa insuficiente!', '#e76f51'); return;
+    }
+    cartasSelecionadas.push(i);
+    document.getElementById(`carta-${i}`).classList.add('selecionada');
+  } else {
+    cartasSelecionadas.splice(idx, 1);
+    document.getElementById(`carta-${i}`).classList.remove('selecionada');
+  }
+  atualizarConfirmarBar(caixaDisponivel);
+};
+
+function atualizarConfirmarBar(caixaDisponivel) {
+  const neg = NEGOCIOS[meuNegocio];
+  const custo = cartasSelecionadas.reduce((s, i) => s + neg.cartas[i].custo, 0);
+  const vn = cartasSelecionadas.reduce((s, i) => s + neg.cartas[i].vn, 0);
+  const vc = cartasSelecionadas.reduce((s, i) => s + neg.cartas[i].vc, 0);
+  document.getElementById('cartas-count').textContent = cartasSelecionadas.length;
+  document.getElementById('custo-total').textContent = formatDinheiro(custo);
+  document.getElementById('vn-total').textContent = (vn >= 0 ? '+' : '') + vn;
+  document.getElementById('vc-total').textContent = (vc >= 0 ? '+' : '') + vc;
+}
+
+window.confirmarInvestimentos = async function() {
+  const snap = await get(ref(db, `rua/${sessionCode}`));
+  const data = snap.val();
+  const negData = data.negocios?.[meuNegocio] || {};
+  const rodadaAtual = data.rodada || 1;
+  const neg = NEGOCIOS[meuNegocio];
+  const caixaRodada = neg.rendaBase * dadoRolado;
+  const custo = cartasSelecionadas.reduce((s, i) => s + neg.cartas[i].custo, 0);
+  const vnGanho = cartasSelecionadas.reduce((s, i) => s + neg.cartas[i].vn, 0);
+  const vcGanho = cartasSelecionadas.reduce((s, i) => s + neg.cartas[i].vc, 0);
+  const caixaAnterior = negData.caixa || 0;
+  const caixaFinal = caixaAnterior + caixaRodada - custo;
+  const vnTotal = (negData.vn || 0) + vnGanho;
+  const vcTotal = (negData.vc || 0) + vcGanho;
+
+  await update(ref(db, `rua/${sessionCode}/negocios/${meuNegocio}`), {
+    caixa: caixaFinal, vn: vnTotal, vc: vcTotal,
+    rodadaStatus: 'confirmado',
+    dadoAtual: dadoRolado,
+    ultimoInvestimento: { custo, vnGanho, vcGanho, caixaRodada, cartas: cartasSelecionadas.map(i => neg.cartas[i].nome) }
+  });
+  await set(ref(db, `rua/${sessionCode}/negocios/${meuNegocio}/historico/rodada${rodadaAtual}`), {
+    rodada: rodadaAtual, dado: dadoRolado, caixaRodada, custo, vnGanho, vcGanho, caixaFinal
+  });
+
+  // Mostrar resultado
+  document.getElementById('cartas-area').style.display = 'none';
+  document.getElementById('confirmar-bar').style.display = 'none';
+  document.getElementById('resultado-rodada').style.display = 'block';
+  document.getElementById('res-dado').textContent = dadoRolado;
+  document.getElementById('res-caixa-rodada').textContent = formatDinheiro(caixaRodada);
+  document.getElementById('res-investido').textContent = '-' + formatDinheiro(custo);
+  document.getElementById('res-vn').textContent = '+' + vnGanho;
+  document.getElementById('res-vc').textContent = '+' + vcGanho;
+  document.getElementById('res-caixa-final').textContent = formatDinheiro(caixaFinal);
+
+  document.getElementById('jogo-caixa').textContent = formatDinheiro(caixaFinal);
+  document.getElementById('jogo-vn').textContent = vnTotal;
+  document.getElementById('jogo-vc').textContent = vcTotal;
+
+  showToast('Investimentos confirmados! ');
+};
+
+// PROJEÇÃO
+function iniciarProjecao(codigo) {
+  sessionCode = codigo;
+  onValue(ref(db, `rua/${codigo}`), (snap) => {
+    if (!snap.exists()) { document.getElementById('proj-rodada').textContent = 'Sessão não encontrada'; return; }
+    atualizarProjecao(snap.val());
+  });
+}
+
+function atualizarProjecao(data) {
+  const rodada = data.rodada || 0;
+  const fase = data.fase || 1;
+  const status = data.status || 'aguardando';
+  document.getElementById('proj-rodada').textContent = rodada > 0 ? `Rodada ${rodada}/5` : 'Aguardando início';
+
+  // Prosperidade — só na fase 2
+  const prospEl = document.getElementById('proj-prosperidade');
+  if (fase === 2) prospEl.classList.add('visivel'); else prospEl.classList.remove('visivel');
+
+  const negocios = data.negocios || {};
+  const ranking = document.getElementById('proj-ranking');
+  ranking.innerHTML = '';
+
+  const lista = Object.entries(negocios).map(([key, val]) => ({
+    key, ...val, neg: NEGOCIOS[key]
+  })).sort((a, b) => (b.vn || 0) - (a.vn || 0));
+
+  lista.forEach(item => {
+    if (!item.neg) return;
+    const confirmado = item.rodadaStatus === 'confirmado';
+    ranking.innerHTML += `
+      <div class="proj-negocio ${confirmado ? 'confirmado' : ''}">
+        <div class="proj-negocio-header">
+          <div class="proj-negocio-nome">${item.neg.nome}</div>
+          <div class="proj-negocio-status ${confirmado ? 'ok' : 'aguardando'}">${confirmado ? ' Confirmado' : '⏳ Jogando'}</div>
+        </div>
+        <div class="proj-stats">
+          <div class="proj-stat"><div class="pval" style="color:#FF5527">${item.caixa || 0}</div><div class="plbl">Caixa</div></div>
+          <div class="proj-stat"><div class="pval" style="color:#457b9d">${item.vn || 0}</div><div class="plbl">VN</div></div>
+          ${fase === 2 ? `<div class="proj-stat"><div class="pval" style="color:#FF5527">${item.vc || 0}</div><div class="plbl">VC</div></div>` : ''}
+        </div>
+      </div>
+    `;
+  });
+
+  // Calcular prosperidade
+  if (fase === 2 && lista.length > 0) {
+    const vcTotal = lista.reduce((s, i) => s + (i.vc || 0), 0);
+    const vcMedia = Math.round(vcTotal / lista.length);
+    document.getElementById('prosper-valor').textContent = vcMedia;
+    let label = '', faixaAtiva = '';
+    if (vcMedia < 10) { label = ' Calamidade'; faixaAtiva = 'faixa-calamidade'; }
+    else if (vcMedia < 20) { label = ' Satisfatória'; faixaAtiva = 'faixa-satisfatoria'; }
+    else if (vcMedia < 30) { label = ' Próspera'; faixaAtiva = 'faixa-prospera'; }
+    else { label = ' Muito Próspera!'; faixaAtiva = 'faixa-muito-prospera'; }
+    document.getElementById('prosper-label').textContent = label;
+    document.querySelectorAll('.prosper-faixa').forEach(el => el.classList.remove('ativa'));
+    document.getElementById(faixaAtiva)?.classList.add('ativa');
+  }
+}
+
+// ADMIN
+function tentarReconectarAdmin() {
+  const saved = localStorage.getItem('rua-admin-session');
+  if (!saved) return;
+  const { code } = JSON.parse(saved);
+  get(ref(db, `rua/${code}`)).then(snap => {
+    if (snap.exists() && snap.val().status !== 'encerrado') {
+      sessionCode = code;
+      adminConectarSessao(code);
+    } else {
+      localStorage.removeItem('rua-admin-session');
+    }
+  });
+}
+
+window.criarSessao = async function() {
+  const codigo = document.getElementById('admin-codigo-input').value.trim().toUpperCase();
+  if (!codigo) { showToast('Digite um código!', '#e63946'); return; }
+
+  await set(ref(db, `rua/${codigo}`), {
+    status: 'aguardando', rodada: 0, fase: 1,
+    negocios: {}, log: [], criadoEm: Date.now()
+  });
+
+  sessionCode = codigo;
+  localStorage.setItem('rua-admin-session', JSON.stringify({ code: codigo }));
+  adminConectarSessao(codigo);
+  showToast('Sessão criada! Código: ' + codigo);
+};
+
+window.adminEntrarSessao = async function() {
+  const codigo = document.getElementById('admin-join-input').value.trim().toUpperCase();
+  if (!codigo) return;
+  const snap = await get(ref(db, `rua/${codigo}`));
+  if (!snap.exists()) { showToast('Sessão não encontrada!', '#e63946'); return; }
+  sessionCode = codigo;
+  localStorage.setItem('rua-admin-session', JSON.stringify({ code: codigo }));
+  adminConectarSessao(codigo);
+};
+
+function adminConectarSessao(codigo) {
+  document.getElementById('admin-criar-section').style.display = 'none';
+  document.getElementById('admin-controle-section').style.display = 'block';
+  document.getElementById('admin-negocios-section').style.display = 'block';
+  document.getElementById('admin-evento-section').style.display = 'block';
+  document.getElementById('admin-acoes-section').style.display = 'block';
+  document.getElementById('admin-log-section').style.display = 'block';
+  document.getElementById('admin-codigo-display').textContent = codigo;
+
+  onValue(ref(db, `rua/${codigo}`), (snap) => {
+    if (!snap.exists()) return;
+    atualizarAdmin(snap.val());
+  });
+}
+
+function atualizarAdmin(data) {
+  const rodada = data.rodada || 0;
+  const fase = data.fase || 1;
+  const status = data.status || 'aguardando';
+  const negocios = data.negocios || {};
+  const conectados = Object.keys(negocios).length;
+  const confirmados = Object.values(negocios).filter(n => n.rodadaStatus === 'confirmado').length;
+
+  document.getElementById('adm-rodada').textContent = `${rodada}/5`;
+  document.getElementById('adm-equipes').textContent = conectados;
+  document.getElementById('adm-confirmados').textContent = confirmados;
+  document.getElementById('adm-fase').textContent = fase;
+
+  // Botões
+  document.getElementById('btn-iniciar').disabled = status !== 'aguardando';
+  document.getElementById('btn-avancar').disabled = status !== 'jogando' || rodada >= 5;
+  document.getElementById('btn-fase2').disabled = fase === 2 || rodada < 3;
+  document.getElementById('btn-encerrar').disabled = rodada < 5;
+
+  // Negócios
+  const lista = document.getElementById('admin-negocios-lista');
+  lista.innerHTML = Object.entries(negocios).map(([key, val]) => {
+    const neg = NEGOCIOS[key];
+    if (!neg) return '';
+    const conf = val.rodadaStatus === 'confirmado';
+    const vnVal = val.vn || 0;
+    const vcVal = val.vc || 0;
+    const prosper = Math.round((vnVal * vcVal) / 25 * 10) / 10;
+    return `
+      <div class="admin-negocio-row">
+        <div class="admin-negocio-nome">${neg.nome}</div>
+        <div class="admin-negocio-stats">
+          <span>Caixa: ${val.caixa || 0}</span>
+          <span>VN: ${vnVal}</span>
+          <span>VC: ${vcVal}</span>
+          <span style="font-weight:800;color:#FF5527;">P: ${prosper}</span>
+        </div>
+        <div class="admin-negocio-status-badge ${conf ? 'badge-ok' : 'badge-wait'}">${conf ? 'OK' : '...'}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Evento
+  if (rodada > 0 && EVENTOS[rodada]) {
+    const ev = EVENTOS[rodada];
+    document.getElementById('admin-evento-desc').innerHTML = `
+      <div class="event-especial">
+        <strong>${ev.titulo}</strong>
+        <p style="margin-top:6px;">${ev.desc}</p>
+      </div>
+    `;
+
+    // Bônus Etapa 2
+    const bonusSection = document.getElementById('admin-bonus-section');
+    if (rodada === 2) {
+      bonusSection.style.display = 'block';
+      const bonusAplicado = data.bonusAplicado;
+      document.getElementById('admin-bonus-aplicado').style.display = bonusAplicado ? 'block' : 'none';
+      const btns = document.getElementById('admin-bonus-btns');
+      btns.innerHTML = Object.entries(negocios).map(([key, val]) => {
+        const neg = NEGOCIOS[key];
+        if (!neg) return '';
+        const jaAplicado = bonusAplicado === key;
+        return `<button class="btn-admin-action ${jaAplicado ? 'btn-verde' : 'btn-amarelo'}" onclick="aplicarBonus('${key}')" ${bonusAplicado ? 'disabled' : ''}>${neg.nome}${jaAplicado ? ' ✓' : ''}</button>`;
+      }).join('');
+    } else {
+      bonusSection.style.display = 'none';
+    }
+
+    // Nota Etapa 4
+    const notaSection = document.getElementById('admin-nota-section');
+    if (rodada === 4) {
+      notaSection.style.display = 'block';
+      document.getElementById('admin-nota-lista').innerHTML = Object.entries(negocios).map(([key, val]) => {
+        const neg = NEGOCIOS[key];
+        if (!neg) return '';
+        return `
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-weight:800;min-width:100px;">${neg.nome}</span>
+            <input type="number" min="1" max="6" placeholder="1–6" value="${val.notaRodada || ''}"
+              style="width:70px;background:#FFF8F5;border:1px solid #FFB89A;border-radius:var(--radius-sm);padding:6px 10px;font-family:var(--font-body);font-size:14px;color:#210000;outline:none;"
+              onchange="aplicarNota('${key}', this.value)">
+            ${val.notaRodada ? `<span style="font-size:12px;color:#FF5527;font-weight:700;">Nota ${val.notaRodada} aplicada</span>` : ''}
+          </div>`;
+      }).join('');
+    } else {
+      notaSection.style.display = 'none';
+    }
+  }
+
+  // Popular selects de doação
+  const opts = Object.entries(negocios).map(([key, val]) => {
+    const neg = NEGOCIOS[key];
+    if (!neg) return '';
+    return `<option value="${key}">${neg.nome} ($${val.caixa || 0})</option>`;
+  }).join('');
+  const origemEl = document.getElementById('doacao-origem');
+  const destinoEl = document.getElementById('doacao-destino');
+  if (origemEl) origemEl.innerHTML = '<option value="">De qual negócio...</option>' + opts;
+  if (destinoEl) destinoEl.innerHTML = '<option value="">Para qual negócio...</option>' + opts;
+
+  // Log
+  if (data.log) {
+    const logEl = document.getElementById('admin-log');
+    const logs = Object.values(data.log).reverse().slice(0, 20);
+    logEl.innerHTML = logs.map(l => `<div class="log-item">${l}</div>`).join('');
+  }
+}
+
+window.aplicarDoacao = async function() {
+  const origem = document.getElementById('doacao-origem').value;
+  const destino = document.getElementById('doacao-destino').value;
+  const valor = parseInt(document.getElementById('doacao-valor').value);
+  if (!origem || !destino || !valor || origem === destino) { showToast('Preencha todos os campos!', '#e63946'); return; }
+  const snapOrigem = await get(ref(db, `rua/${sessionCode}/negocios/${origem}`));
+  const snapDestino = await get(ref(db, `rua/${sessionCode}/negocios/${destino}`));
+  const caixaOrigem = snapOrigem.val()?.caixa || 0;
+  if (valor > caixaOrigem) { showToast('Caixa insuficiente!', '#e63946'); return; }
+  await update(ref(db, `rua/${sessionCode}/negocios/${origem}`), { caixa: caixaOrigem - valor });
+  await update(ref(db, `rua/${sessionCode}/negocios/${destino}`), { caixa: (snapDestino.val()?.caixa || 0) + valor });
+  await adicionarLog(`Transferência: ${NEGOCIOS[origem].nome} → ${NEGOCIOS[destino].nome} ($${valor})`);
+  document.getElementById('doacao-valor').value = '';
+  showToast(`Transferido $${valor} de ${NEGOCIOS[origem].nome} para ${NEGOCIOS[destino].nome}!`, '#733909');
+};
+
+window.aplicarNota = async function(negocio, nota) {
+  if (!nota || nota < 1 || nota > 6) { showToast('Nota deve ser entre 1 e 6!', '#e63946'); return; }
+  await update(ref(db, `rua/${sessionCode}/negocios/${negocio}`), { notaRodada: parseInt(nota) });
+  await adicionarLog(`Nota ${nota} aplicada para ${NEGOCIOS[negocio].nome}`);
+  showToast(`Nota ${nota} aplicada para ${NEGOCIOS[negocio].nome}!`, '#733909');
+};
+
+window.aplicarBonus = async function(negocio) {
+  const neg = NEGOCIOS[negocio];
+  if (!confirm(`Aplicar bônus de renda base x6 para ${neg.nome}?`)) return;
+  const snap = await get(ref(db, `rua/${sessionCode}/negocios/${negocio}`));
+  const negData = snap.val() || {};
+  const bonus = neg.rendaBase * 6;
+  const novoCaixa = (negData.caixa || 0) + bonus;
+  await update(ref(db, `rua/${sessionCode}/negocios/${negocio}`), { caixa: novoCaixa });
+  await update(ref(db, `rua/${sessionCode}`), { bonusAplicado: negocio });
+  await adicionarLog(`Bônus x6 aplicado para ${neg.nome} (+$${bonus})`);
+  document.getElementById('admin-bonus-aplicado').style.display = 'block';
+  showToast(`Bônus aplicado para ${neg.nome}! +$${bonus}`, '#FF5527');
+};
+
+window.iniciarJogo = async function() {
+  await update(ref(db, `rua/${sessionCode}`), { status: 'jogando', rodada: 1 });
+  await resetarRodadaNegocios(1);
+  await adicionarLog('Jogo iniciado — Rodada 1');
+  showToast('Jogo iniciado!');
+};
+
+window.avancarRodada = async function() {
+  const snap = await get(ref(db, `rua/${sessionCode}`));
+  const data = snap.val();
+  const rodadaAtual = data.rodada || 1;
+  const proxRodada = rodadaAtual + 1;
+  if (proxRodada > 5) return;
+  await update(ref(db, `rua/${sessionCode}`), { rodada: proxRodada, bonusAplicado: null });
+  await resetarRodadaNegocios(proxRodada);
+  await adicionarLog(`Rodada ${proxRodada} iniciada`);
+  showToast(`Rodada ${proxRodada} iniciada!`);
+};
+
+window.revelarFase2 = async function() {
+  if (!confirm('Revelar Fase 2 para todos? Isso vai mostrar a prosperidade da cidade.')) return;
+  await update(ref(db, `rua/${sessionCode}`), { fase: 2 });
+  await adicionarLog('FASE 2 REVELADA — Pequenópolis é um sistema!');
+  showToast('Fase 2 revelada! ', '#6a4c93');
+};
+
+window.encerrarJogo = async function() {
+  if (!confirm('Encerrar o jogo?')) return;
+  await update(ref(db, `rua/${sessionCode}`), { status: 'encerrado' });
+  await adicionarLog('Jogo encerrado');
+  localStorage.removeItem('rua-session');
+  showToast('Jogo encerrado!', '#e63946');
+};
+
+window.limparSessao = async function() {
+  if (!confirm('Apagar todos os dados desta sessão?')) return;
+  await remove(ref(db, `rua/${sessionCode}`));
+  localStorage.removeItem('rua-admin-session');
+  sessionCode = '';
+  document.getElementById('admin-criar-section').style.display = 'block';
+  ['admin-controle-section','admin-negocios-section','admin-evento-section','admin-acoes-section','admin-log-section'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  showToast('Sessão apagada!', '#e63946');
+};
+
+async function resetarRodadaNegocios(proxRodada) {
+  const snap = await get(ref(db, `rua/${sessionCode}/negocios`));
+  if (!snap.exists()) return;
+  const updates = {};
+  snap.forEach(child => {
+    updates[`rua/${sessionCode}/negocios/${child.key}/rodadaStatus`] = '';
+    updates[`rua/${sessionCode}/negocios/${child.key}/dadoAtual`] = null;
+    if (proxRodada !== 5) updates[`rua/${sessionCode}/negocios/${child.key}/cartaDesafio`] = null;
+  });
+  await update(ref(db), updates);
+}
+
+async function adicionarLog(msg) {
+  const timestamp = new Date().toLocaleTimeString('pt-BR');
+  await push(ref(db, `rua/${sessionCode}/log`), `[${timestamp}] ${msg}`);
+}
+</script>
+</body>
+</html>
