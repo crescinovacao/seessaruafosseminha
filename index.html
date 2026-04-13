@@ -76,11 +76,12 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
 #tela-jogo { background: var(--cinza-bg); }
 
 .jogo-body {
-  display: flex; flex: 1; overflow: hidden;
+  display: flex; flex: 1;
 }
 
 .jogo-main-area {
   flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+  padding-right: 280px;
 }
 
 /* CHAT LATERAL */
@@ -88,7 +89,10 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
   width: 280px; min-width: 280px; background: #fff;
   border-left: 1px solid var(--cinza-border);
   display: flex; flex-direction: column;
-  height: calc(100vh - 52px); position: sticky; top: 52px;
+  position: fixed; right: 0; top: 0;
+  height: 100vh;
+  z-index: 50;
+  padding-top: 52px;
 }
 
 .chat-lateral .chat-header {
@@ -129,6 +133,7 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
 .jogo-header {
   background: var(--neg-color, var(--principal-dark)); color: #fff;
   padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 60;
 }
 .jogo-header h1 { font-family: var(--font-title); font-size: 22px; }
 .jogo-header .rodada-info { font-size: 13px; opacity: 0.85; font-weight: 700; }
