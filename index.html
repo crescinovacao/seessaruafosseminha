@@ -150,10 +150,10 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
   padding: 0; height: 100%;
 }
 .sb-card {
-  background: var(--neg-light); border-radius: 10px; overflow: hidden;
+  background: var(--neg-light); border-radius: 10px;
   display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
-.sb-card-header { background: var(--neg-color); color: #fff; padding: 14px 12px; text-align: center; }
+.sb-card-header { background: var(--neg-color); color: #fff; padding: 14px 12px; text-align: center; border-radius: 10px 10px 0 0; }
 .sb-card-header h2 { font-family: var(--font-title); font-size: 18px; font-weight: 800; }
 .sb-card-header .jogo-funcao { font-size: 12px; opacity: 0.8; font-weight: 600; }
 .sb-card-body { padding: 10px; display: flex; flex-direction: column; gap: 6px; }
@@ -169,7 +169,7 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
   background: var(--neg-color); color: #ffffff !important; 
   width: 90px; height: 90px; border-radius: 16px; 
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-title); font-size: 44px; font-weight: 900;
+  font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', var(--font-title); font-size: 44px; font-weight: 900;
   box-shadow: 0 5px 0 rgba(0,0,0,0.2), inset 0 0 15px rgba(255,255,255,0.1);
   border: 2px solid rgba(255,255,255,0.05); margin: 0 auto;
 }
@@ -220,8 +220,8 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
 
 /* CORPO DO JOGO E CHAT NO RODAPÉ */
 .jogo-body { display: flex; flex: 1; overflow: hidden; gap: 16px; background: transparent; height: 100%; }
-.jogo-main-area { flex: 1; overflow-y: auto; background: #fff; border-radius: 10px; display: flex; flex-direction: column; border: 1px solid var(--cinza-border); position: relative; }
-.cartas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 24px; padding-bottom: 100px; }
+.jogo-main-area { flex: 1; min-width: 0; overflow-y: auto; background: #fff; border-radius: 10px; display: flex; flex-direction: column; border: 1px solid var(--cinza-border); position: relative; }
+.cartas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; padding: 24px; padding-bottom: 100px; }
 .carta { background: var(--neg-light); border-radius: 10px; padding: 20px; cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; position: relative; }
 .carta-nome { font-family: var(--font-title); font-weight: 800; font-size: 14px; color: var(--neg-color); text-align: center; margin-bottom: 14px; line-height: 1.2; flex: 1; display: flex; align-items: center; justify-content: center; }
 
@@ -774,7 +774,7 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
         <div id="doacao-area"><button id="btn-abrir-transferencia" class="btn-transferencia-final" style="display:none;" onclick="document.getElementById('popup-transferencia').style.display='flex'">Transferência</button></div>
       </div>
     </div>
-    <div class="sb-card-action" id="dado-area" style="padding: 24px 16px; background: var(--neg-light); border-radius: 10px; display: flex; flex-direction: column; gap: 16px; align-items: center; flex: 1; justify-content: center;">
+    <div class="sb-card-action" id="dado-area" style="padding: 12px 16px; background: var(--neg-light); border-radius: 10px; display: flex; flex-direction: column; gap: 10px; align-items: center; flex: 1; justify-content: center; min-height: 0;">
       <div id="dado-resultado">🎲</div>
       <button class="btn-voto-pill" id="btn-dado" onclick="rolarDado()">Rolar dado</button>
       <div id="dado-caixa-texto" style="display:none;"></div>
@@ -1549,14 +1549,24 @@ window.entrarJogo = async function() {
   minhaFuncao = funcao;
   sessionStorage.setItem('rua-session', JSON.stringify({ sessionCode, meuNegocio, meuNome, minhaFuncao }));
 
-  await update(ref(db, `rua/${codigo}/negocios/${negocio}`), {
-    conectado: true,
-    nome: NEGOCIOS[negocio].nome,
-    vn: NEGOCIOS[negocio].vnBase,
-    vc: NEGOCIOS[negocio].vcBase,
-    caixa: 0,
-    ...(funcao === 'Liderança' ? { lideranca: nome } : {})
-  });
+  const snapJogo = await get(ref(db, `rua/${codigo}`));
+  const jogoJaComecou = snapJogo.val()?.status === 'jogando';
+  if (jogoJaComecou) {
+    await update(ref(db, `rua/${codigo}/negocios/${negocio}`), {
+      conectado: true,
+      nome: NEGOCIOS[negocio].nome,
+      ...(funcao === 'Liderança' ? { lideranca: nome } : {})
+    });
+  } else {
+    await update(ref(db, `rua/${codigo}/negocios/${negocio}`), {
+      conectado: true,
+      nome: NEGOCIOS[negocio].nome,
+      vn: NEGOCIOS[negocio].vnBase,
+      vc: NEGOCIOS[negocio].vcBase,
+      caixa: 0,
+      ...(funcao === 'Liderança' ? { lideranca: nome } : {})
+    });
+  }
   iniciarJogo();
 };
 
@@ -1926,7 +1936,7 @@ document.getElementById('popup-nota-recebida-texto').innerHTML =
       const negsArr = Object.entries(data.negocios).map(([key, val]) => ({
         key, vc: val.vc ?? 0, prosper: ((val.vn ?? 0) * (val.vc ?? 0)) / 25
       }));
-      negsArr.sort((a, b) => b.vc - a.vc || b.prosper - a.prosper);
+      negsArr.sort((a, b) => b.prosper - a.prosper || b.vc - a.vc);
       const updV = {};
       negsArr.forEach((neg, i) => { updV[`rua/${sessionCode}/negocios/${neg.key}/cartaDesafio`] = i + 1; });
       update(ref(db), updV);
@@ -2513,12 +2523,11 @@ window.liderDoar = async function() {
   const negData = snap.val() || {};
   
   const caixaBanco = negData.caixa || 0;
-  const dadoVal = rodadaAtual === 5 ? (negData.cartaDesafio || 0) : rodadaAtual === 4 ? (negData.notaRodada || 0) : (negData.dadoAtual || 0);
+  const dadoVal = negData.dadoAtual || 0;
   const caixaRodada = NEGOCIOS[negAlvo].rendaBase * dadoVal;
-  const custo = cartasSelecionadas.reduce((s, i) => s + NEGOCIOS[negAlvo].cartas[i].custo, 0);
-  const saldoLivre = caixaBanco + caixaRodada - custo;
+  const disponivel = caixaBanco + caixaRodada;
 
-  if (valor > saldoLivre || caixaBanco - valor < 0) { showToast('Caixa insuficiente para transferência!', '#e63946'); return; }
+  if (valor > disponivel) { showToast('Caixa insuficiente para transferência!', '#e63946'); return; }
 
   if (minhaFuncao === 'Financeiro') {
     await update(ref(db, `rua/${sessionCode}/negocios/${negAlvo}/transferenciaPendente`), { destino, valor });
@@ -2548,14 +2557,11 @@ window.aprovarTransferencia = async function() {
   if(!pendente) return;
 
   const caixaBanco = negData.caixa || 0;
-  const snapSessaoRod = await get(ref(db, `rua/${sessionCode}/rodada`));
-  const rodadaApr = snapSessaoRod.val() || 1;
-  const dadoVal = rodadaApr === 5 ? (negData.cartaDesafio || 0) : rodadaApr === 4 ? (negData.notaRodada || 0) : (negData.dadoAtual || 0);
-  const caixaRodada = NEGOCIOS[negAtivo].rendaBase * dadoVal;
-  const custo = cartasSelecionadas.reduce((s, i) => s + NEGOCIOS[negAtivo].cartas[i].custo, 0);
-  const saldoLivre = caixaBanco + caixaRodada - custo;
+  const dadoValApr = negData.dadoAtual || 0;
+  const caixaRodadaApr = NEGOCIOS[negAtivo].rendaBase * dadoValApr;
+  const disponivelApr = caixaBanco + caixaRodadaApr;
 
-  if (pendente.valor > saldoLivre || caixaBanco - pendente.valor < 0) {
+  if (pendente.valor > disponivelApr) {
     showToast('Caixa insuficiente para aprovar!', '#e63946');
     await update(ref(db, `rua/${sessionCode}/negocios/${negAtivo}/transferenciaPendente`), null);
     return;
@@ -2726,8 +2732,13 @@ function mostrarCartas(caixaDisponivel, negData) {
        cartasSelecionadas = []; 
     }
     
-    grid.innerHTML = neg.cartas.map((carta, i) => `
-      <div class="carta ${cartasSelecionadas.includes(i) ? 'selecionada' : ''}" id="carta-${i}" onclick="toggleCarta(${i}, ${caixaDisponivel})">
+    const cartasCompradas = negData.cartasCompradas || {};
+    grid.innerHTML = neg.cartas.map((carta, i) => {
+      const jaComprada = !!cartasCompradas[i];
+      return `
+      <div class="carta" id="carta-${i}" ${jaComprada ? 'data-comprada="true"' : `onclick="toggleCarta(${i}, ${caixaDisponivel})"`}
+        style="${jaComprada ? 'opacity:0.35; pointer-events:none; filter:grayscale(60%);' : ''}">
+        ${jaComprada ? '' : ''}
         <div class="carta-voto-badge" id="badge-voto-${i}">0</div>
         <div class="carta-check">✓</div>
         <div class="carta-nome">${carta.nome}</div>
@@ -2736,8 +2747,8 @@ function mostrarCartas(caixaDisponivel, negData) {
           <div class="carta-stat"><span class="slbl">Valor negócio</span><span class="sval">${carta.vn}</span></div>
           <div class="carta-stat"><span class="slbl">Valor cidade</span><span class="sval">${carta.vc}</span></div>
         </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   }
 
   atualizarVotosCartas(negData);
@@ -2811,7 +2822,7 @@ function atualizarConfirmarBar(caixaDisponivel) {
   // MÁGICA VISUAL: Escurece (opacidade) as cartas que não cabem no orçamento
   neg.cartas.forEach((c, i) => {
     const el = document.getElementById(`carta-${i}`);
-    if (!el) return;
+    if (!el || el.dataset.comprada === 'true') return;
     if (!cartasSelecionadas.includes(i) && c.custo > saldoRestante) {
       el.style.opacity = '0.35';
       el.style.pointerEvents = 'none';
@@ -2865,10 +2876,13 @@ window.confirmarInvestimentos = async function() {
   const vnTotal = (negData.vn || 0) + vnGanho;
   const vcTotal = (negData.vc || 0) + vcGanho;
 
+  const cartasJaCompradas = negData.cartasCompradas || {};
+  cartasSelecionadas.forEach(i => { cartasJaCompradas[i] = true; });
   await update(ref(db, `rua/${sessionCode}/negocios/${negAlvo}`), {
     caixa: caixaFinal, vn: vnTotal, vc: vcTotal,
     rodadaStatus: 'confirmado',
     dadoAtual: dadoRolado,
+    cartasCompradas: cartasJaCompradas,
     ultimoInvestimento: { custo, vnGanho, vcGanho, caixaRodada, cartas: cartasSelecionadas.map(i => negConfig.cartas[i].nome) }
   });
   await set(ref(db, `rua/${sessionCode}/negocios/${negAlvo}/historico/rodada${rodadaAtual}`), {
