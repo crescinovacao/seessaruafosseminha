@@ -2342,7 +2342,7 @@ async function atualizarVisaoLider(negData, rodada, fase, bonusAplicado) {
         btnDado.innerHTML = 'Caixa Definido';
     }
 
-    const caixaRodada = NEGOCIOS[negocioAtivo].rendaBase * valDadoFinal;
+    const caixaRodada = NEGOCIOS[meuNegocio].rendaBase * valDadoFinal;
     atualizarStatusSidebar((negData.caixa || 0), caixaRodada, (negData.caixa || 0) + caixaRodada);
     mostrarCartas((negData.caixa || 0) + caixaRodada, negData);
 } else {
