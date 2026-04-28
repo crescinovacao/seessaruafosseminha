@@ -1757,9 +1757,8 @@ document.getElementById('jogo-funcao-badge').textContent = ' Liderança · Sua n
   } else {
     headerJogo.className = `tela ativa neg-${meuNegocio}`;
     document.getElementById('jogo-negocio-nome').textContent = NEGOCIOS[meuNegocio].nome;
-    if (popup) popup.style.display = 'none';
     // Aviso pro Financeiro no mês 3
-    if (rodada === 3 && minhaFuncao === 'Financeiro' && !window.popupRodada3Mostrado) {
+    if (rodada === 3 && minhaFuncao === 'Financeiro' && popup && popup.style.display === 'none' && !window.popupRodada3Mostrado) {
       window.popupRodada3Mostrado = true;
       const liderOrigem = Object.entries(MAPA_TROCA).find(([de, para]) => para === meuNegocio)?.[0];
       const nomeLider = liderOrigem ? NEGOCIOS[liderOrigem].nome : 'outro negócio';
@@ -2342,7 +2341,7 @@ async function atualizarVisaoLider(negData, rodada, fase, bonusAplicado) {
         btnDado.innerHTML = 'Caixa Definido';
     }
 
-    const caixaRodada = NEGOCIOS[meuNegocio].rendaBase * valDadoFinal;
+    const caixaRodada = NEGOCIOS[window.negocioVigente || meuNegocio].rendaBase * valDadoFinal;
     atualizarStatusSidebar((negData.caixa || 0), caixaRodada, (negData.caixa || 0) + caixaRodada);
     mostrarCartas((negData.caixa || 0) + caixaRodada, negData);
 } else {
@@ -2433,7 +2432,7 @@ function atualizarVisaoFinanceiro(negData, rodada) {
   const dado = negData.dadoAtual;
   const tesCartasArea = document.getElementById('tes-cartas-area');
   if (dado) {
-    const caixaRodada = NEGOCIOS[meuNegocio].rendaBase * dado;
+    const caixaRodada = NEGOCIOS[window.negocioVigente || meuNegocio].rendaBase * dado;
     const caixaTotal = (negData.caixa || 0) + caixaRodada;
     tesCartasArea.style.display = 'block';
     const neg = NEGOCIOS[window.negocioVigente || meuNegocio];
@@ -3094,7 +3093,7 @@ function atualizarAdmin(data) {
       const negsArr = Object.entries(negociosData).map(([key, val]) => ({
         key, vc: val.vc ?? 0, prosper: ((val.vn ?? 0) * (val.vc ?? 0)) / 25
       }));
-      negsArr.sort((a, b) => b.vc - a.vc || b.prosper - a.prosper);
+      negsArr.sort((a, b) => b.prosper - a.prosper || b.vc - a.vc);
       const updatesVeredito = {};
       negsArr.forEach((neg, i) => {
         updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/cartaDesafio`] = i + 1;
@@ -3512,7 +3511,9 @@ async function resetarRodadaNegocios(proxRodada) {
   snap.forEach(child => {
     updates[`rua/${sessionCode}/negocios/${child.key}/rodadaStatus`] = '';
     updates[`rua/${sessionCode}/negocios/${child.key}/dadoAtual`] = null;
-updates[`rua/${sessionCode}/negocios/${child.key}/votosCartas`] = null;
+    updates[`rua/${sessionCode}/negocios/${child.key}/votosCartas`] = null;
+    updates[`rua/${sessionCode}/negocios/${child.key}/transferenciaRecebida`] = null;
+    updates[`rua/${sessionCode}/negocios/${child.key}/transferenciaPendente`] = null;
     if (proxRodada !== 5) updates[`rua/${sessionCode}/negocios/${child.key}/cartaDesafio`] = null;
   });
   await update(ref(db), updates);
