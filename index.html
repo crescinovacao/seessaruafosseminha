@@ -767,6 +767,14 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
 
 <!-- JOGO EQUIPE -->
 <div id="tela-jogo" class="tela neg-mercado">
+<div id="popup-prosperidade-info" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:10025; justify-content:center; align-items:center;">
+  <div style="background:#fff; border-radius:12px; padding:28px 24px; width:90%; max-width:340px; position:relative; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <button onclick="document.getElementById('popup-prosperidade-info').style.display='none'" style="position:absolute; top:12px; right:14px; background:none; border:none; font-size:18px; cursor:pointer; color:#aaa; line-height:1;">✕</button>
+    <div style="font-family:var(--font-title); font-size:16px; font-weight:800; color:var(--neg-color); margin-bottom:12px; text-align:center; line-height:1.3;">Como é calculada<br>a prosperidade?</div>
+    <div style="font-family:var(--font-body); font-size:14px; color:#444; line-height:1.6;">A prosperidade é o resultado da multiplicação do Valor do Negócio (VN) pelo Valor da Cidade (VC), dividido por 25. Quanto maior a prosperidade, melhor a posição do seu negócio no ranking de Pequenópolis!</div>
+    <div style="margin-top:16px; background:var(--neg-light); border-radius:8px; padding:10px 14px; font-family:var(--font-title); font-size:15px; font-weight:900; color:var(--neg-color); text-align:center;">VN × VC ÷ 25</div>
+  </div>
+</div>
 <div class="jogo-sidebar" id="jogo-sidebar" style="display:none;">
     <div class="sb-card">
       <div class="sb-card-header"><h2 id="jogo-negocio-nome">...</h2><div class="jogo-funcao" id="jogo-funcao-badge">...</div></div>
@@ -844,7 +852,7 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
             <span id="vc-final-preview" style="font-family:var(--font-title); font-size:16px; font-weight:900; color:#210000;">0</span>
           </div>
           <div style="display:flex; flex-direction:column;">
-            <span style="font-size:11px; font-weight:800; text-transform:uppercase; color:var(--neg-color);">Prosperidade</span>
+            <span style="font-size:11px; font-weight:800; text-transform:uppercase; color:var(--neg-color); display:flex; align-items:center; gap:4px;">Prosperidade <span onclick="document.getElementById('popup-prosperidade-info').style.display='flex'" style="cursor:pointer; font-size:13px; color:var(--neg-color); font-weight:900; line-height:1;">ℹ️</span></span>
             <span id="prosper-final-preview" style="font-family:var(--font-title); font-size:16px; font-weight:900; color:#210000;">0</span>
           </div>
         </div>
@@ -2760,8 +2768,7 @@ function mostrarCartas(caixaDisponivel, negData) {
       const jaComprada = !!cartasCompradas[i];
       return `
       <div class="carta" id="carta-${i}" ${jaComprada ? 'data-comprada="true"' : `onclick="toggleCarta(${i}, ${caixaDisponivel})"`}
-        style="${jaComprada ? 'opacity:0.35; pointer-events:none; filter:grayscale(60%);' : ''}">
-        ${jaComprada ? '' : ''}
+        style="${jaComprada ? 'opacity:0.5; pointer-events:none; filter:grayscale(40%); border: 2px dashed var(--neg-color);' : ''}">
         <div class="carta-voto-badge" id="badge-voto-${i}">0</div>
         <div class="carta-check">✓</div>
         <div class="carta-nome">${carta.nome}</div>
