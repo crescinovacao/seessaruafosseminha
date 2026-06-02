@@ -754,6 +754,17 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
   </div><!-- fim entrada-inner -->
 </div>
 
+<!-- POPUP ENCERRADO -->
+<div id="popup-encerrado" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(33,0,0,0.85); z-index:10020; justify-content:center; align-items:center; backdrop-filter:blur(10px);">
+  <div style="background:#fff; border-radius:10px; padding:40px 36px; width:90%; max-width:420px; text-align:center; position:relative; display:flex; flex-direction:column; align-items:center; gap:12px;">
+    <div style="height:8px; width:100%; background:#210000; position:absolute; top:0; left:0; border-radius:10px 10px 0 0;"></div>
+    <div style="font-size:64px; margin-bottom:4px;">🏙️</div>
+    <div style="font-size:12px; font-weight:800; text-transform:uppercase; color:#FF5527; letter-spacing:0.12em;">PEQUENÓPOLIS</div>
+    <h2 style="font-family:var(--font-title); font-size:26px; color:#210000; margin:0;">Dinâmica encerrada</h2>
+    <p style="font-size:16px; color:#210000; line-height:1.6; margin:0;">O(a) consultor(a) encerrou a sessão.<br>Agradecemos a sua participação!</p>
+  </div>
+</div>
+
 <!-- JOGO EQUIPE -->
 <div id="tela-jogo" class="tela neg-mercado">
 <div class="jogo-sidebar" id="jogo-sidebar" style="display:none;">
@@ -1091,7 +1102,7 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
     <div id="ranking-popup-card" style="background:#ffffff; padding:20px 28px 24px; border-radius:10px; text-align:center; width:90%; max-width:520px; box-shadow:0 20px 50px rgba(0,0,0,0.5); position:relative; transition: max-width 0.4s ease-in-out; overflow:hidden;">
         <h2 style="font-family:var(--font-title); font-size:24px; color:#210000; margin-bottom:16px; margin-top:4px;">Ranking Atual</h2>
         <div id="ranking-lista" style="text-align:left; margin-bottom:16px; display:flex; flex-direction:column; gap:8px;"></div>
-        <button id="btn-fechar-ranking" style="background:#210000; color:#fff; border:none; padding:12px 32px; border-radius:100px; font-family:var(--font-body); font-size:15px; font-weight:700; cursor:pointer; display:inline-block;" onclick="document.getElementById('ranking-revelado').style.display='none'">Fechar Ranking</button>
+        <button id="btn-fechar-ranking" style="background:#210000; color:#fff; border:none; padding:12px 32px; border-radius:100px; font-family:var(--font-body); font-size:15px; font-weight:700; cursor:pointer; display:inline-block;" onclick="window.rankingFechado=true; document.getElementById('ranking-revelado').style.display='none'">Fechar Ranking</button>
     </div>
 </div>
 <div id="popup-evento" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(33,0,0,0.85); z-index:10010; justify-content:center; align-items:center; backdrop-filter:blur(10px);">
@@ -1635,7 +1646,10 @@ function iniciarJogo() {
   if (sessaoRef) off(sessaoRef);
   sessaoRef = ref(db, `rua/${sessionCode}`);
   onValue(sessaoRef, (snap) => {
-    if (!snap.exists()) return;
+    if (!snap.exists()) {
+      document.getElementById('popup-encerrado').style.display = 'flex';
+      return;
+    }
     atualizarTelaJogo(snap.val());
   });
 
@@ -1719,6 +1733,15 @@ async function atualizarTelaJogo(data) {
     negocioAtivo = MAPA_TROCA[meuNegocio] || meuNegocio;
   }
   window.negocioVigente = negocioAtivo;
+
+  // Limpa o grid quando o mês avança
+  if (window.rodadaAnterior && rodada !== window.rodadaAnterior) {
+    cartasSelecionadas = [];
+    const grid = document.getElementById('cartas-grid');
+    if (grid) grid.innerHTML = '';
+    window.ultimoRecebidoTs = null;
+  }
+  window.rodadaAnterior = rodada;
 
   const negData = data.negocios?.[negocioAtivo] || {};
   const headerJogo = document.getElementById('tela-jogo');
@@ -2228,11 +2251,12 @@ if (popupCard) popupCard.style.maxWidth = '500px';
       if (barraTop) barraTop.style.setProperty('background', '#210000', 'important');
       if (btnFechar) btnFechar.style.setProperty('background', '#210000', 'important');
 
-      divRanking.style.display = 'flex';
+      if (!window.rankingFechado) divRanking.style.display = 'flex';
     } else {
       divRanking.style.display = 'none';
+      window.rankingFechado = false;
       window.popupProsperidadeMostrado = false;
-  }
+    }
   }
 
   // Popup de Prosperidade — independente do ranking
@@ -2723,7 +2747,7 @@ function mostrarCartas(caixaDisponivel, negData) {
   
   // O truque de mestre: Só redesenha a grade se ela estiver vazia. 
   // Assim a Liderança não perde a seleção se a tela atualizar!
-  if (grid.innerHTML.trim() === '') {
+  if (grid.innerHTML.trim() === '' || minhaFuncao === 'Financeiro') {
     const chaveNome = meuNome.replace(/[.#$\[\]]/g, ''); // Proteção pro Firebase
     if (minhaFuncao === 'Financeiro') {
        cartasSelecionadas = negData.votosCartas?.[chaveNome] || [];
@@ -2892,8 +2916,6 @@ document.getElementById('cartas-area').style.display = 'none';
   document.getElementById('confirmar-bar').style.display = 'none';
   document.getElementById('cartas-grid').innerHTML = '';
   document.getElementById('centro-espera').style.display = 'none';
- document.getElementById('cartas-area').style.display = 'none';
-  document.getElementById('confirmar-bar').style.display = 'none';
   document.getElementById('jogo-aguardando-rodada').style.display = 'flex';
 
   const btnDado = document.getElementById('btn-dado');
@@ -3435,8 +3457,6 @@ window.avancarRodada = async function() {
   if (proxRodada === 5) {
     try {
     const negociosData = data.negocios || {};
-    await adicionarLog(`DEBUG negocios keys: ${Object.keys(negociosData).join(', ')}`);
-    await adicionarLog(`DEBUG primeiro negocio: ${JSON.stringify(Object.values(negociosData)[0])?.substring(0,100)}`);
     const negsArr = Object.entries(negociosData).map(([key, val]) => {
       const vc = val.vc || 0;
       const vn = val.vn || 0;
