@@ -2126,7 +2126,6 @@ if (negData.transferenciaRecebida && !window.trocouRodada) {
           if (labelVotacao) labelVotacao.style.color = corMid;
           container.innerHTML = candidatos.map(k => `
             <button id="btn-voto-${k}" onclick="selecionarVotoBonus('${k}')"
-              <button id="btn-voto-${k}" onclick="selecionarVotoBonus('${k}')"
               style="padding:12px 20px; border-radius:100px; border:none;
                      background:${corLight}; font-family:var(--font-body); font-size:14px;
                      font-weight:700; cursor:pointer; color:${corDarkBtn};">
@@ -2958,9 +2957,10 @@ document.getElementById('cartas-area').style.display = 'none';
   const dadoEl = document.getElementById('dado-resultado');
   if (dadoEl) { dadoEl.classList.remove('rolado'); dadoEl.innerHTML = '🎲'; }
 
-  document.getElementById('jogo-caixa').textContent = formatDinheiro(caixaFinal);
-  document.getElementById('jogo-vn').textContent = vnTotal;
-  document.getElementById('jogo-vc').textContent = vcTotal;
+  const elVn = document.getElementById('jogo-vn');
+  const elVc = document.getElementById('jogo-vc');
+  if (elVn) elVn.textContent = vnTotal;
+  if (elVc) elVc.textContent = vcTotal;
 
   showToast('Investimentos confirmados!', '#77AD18');
   const cartasNomes = cartasSelecionadas.map(i => negConfig.cartas[i].nome);
