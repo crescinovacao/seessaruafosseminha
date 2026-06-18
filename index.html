@@ -836,6 +836,10 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
         <div class="espera-spinner"></div>
         <h2>Investimentos enviados!</h2>
         <div class="status-pilula"><span id="texto-espera-dinamico">Aguardando outras equipes...</span></div>
+        <div id="investimentos-realizados" style="display:none; margin-top:16px; text-align:left; background:#f0f0f0; border-radius:10px; padding:16px 20px; width:100%; max-width:320px; box-sizing:border-box;">
+          <div style="font-size:12px; font-weight:800; text-transform:uppercase; color:var(--neg-color); margin-bottom:8px;">Investimentos realizados este mês:</div>
+          <div id="investimentos-lista" style="font-size:14px; color:#210000; line-height:1.8;"></div>
+        </div>
       </div>
 <div class="confirmar-bar" id="confirmar-bar" style="display:none; align-items:center; justify-content:space-between; background:#fff; padding:14px 24px; border-top:1px solid var(--cinza-border);">
         <div style="display:flex; gap:24px; align-items:center;">
@@ -1748,6 +1752,11 @@ async function atualizarTelaJogo(data) {
     const grid = document.getElementById('cartas-grid');
     if (grid) grid.innerHTML = '';
     window.ultimoRecebidoTs = null;
+    window.trocouRodada = true;
+    window.investimentosMostrados = false;
+    const boxReset = document.getElementById('investimentos-realizados');
+    if (boxReset) boxReset.style.display = 'none';
+    setTimeout(() => { window.trocouRodada = false; }, 3000);
   }
   window.rodadaAnterior = rodada;
 
@@ -1852,6 +1861,13 @@ if (negData.rodadaStatus === 'confirmado') {
     if (minhaFuncao === 'Financeiro') {
       if (btnDado) btnDado.style.display = 'none';
       if (dadoEl) { dadoEl.classList.remove('rolado'); dadoEl.innerHTML = '🎲'; }
+      const boxEl = document.getElementById('investimentos-realizados');
+      const listaEl = document.getElementById('investimentos-lista');
+      if (boxEl && listaEl) {
+        const cartasFeitas = negData.ultimoInvestimento?.cartas || [];
+        listaEl.innerHTML = cartasFeitas.length > 0 ? cartasFeitas.map(n => `• ${n}`).join('<br>') : '• Nenhum investimento realizado neste mês.';
+        boxEl.style.display = 'block';
+      }
       const btnTransf = document.getElementById('btn-abrir-transferencia');
       if (btnTransf) btnTransf.style.setProperty('display', 'block', 'important');
       const selectDestino = document.getElementById('lider-doacao-destino');
@@ -2034,7 +2050,7 @@ document.getElementById('popup-nota-recebida-texto').innerHTML =
   }
 
   // MÁGICA: Verifica se recebeu uma transferência nova
-if (negData.transferenciaRecebida) {
+if (negData.transferenciaRecebida && !window.trocouRodada) {
     const ts = negData.transferenciaRecebida.ts;
     // Na primeira leitura (F5), apenas registra o ts sem abrir o popup
     if (ts !== window.ultimoRecebidoTs) {
@@ -2645,7 +2661,8 @@ window.selecionarNota = function(nota) {
 window.enviarNota = async function() {
   if (!window.notaTemporaria) return;
   const chaveNome = meuNome.replace(/[.#$\[\]]/g, '');
-  await update(ref(db, `rua/${sessionCode}/negocios/${meuNegocio}/votosLideranca`), {
+  const negAvaliado = MAPA_TROCA[meuNegocio] || meuNegocio;
+  await update(ref(db, `rua/${sessionCode}/negocios/${negAvaliado}/votosLideranca`), {
     [chaveNome]: window.notaTemporaria
   });
   document.getElementById('popup-avaliacao').style.display = 'none';
@@ -2924,6 +2941,14 @@ document.getElementById('cartas-area').style.display = 'none';
   document.getElementById('cartas-grid').innerHTML = '';
   document.getElementById('centro-espera').style.display = 'none';
   document.getElementById('jogo-aguardando-rodada').style.display = 'flex';
+
+  const listaEl = document.getElementById('investimentos-lista');
+  const boxEl = document.getElementById('investimentos-realizados');
+  if (listaEl && boxEl) {
+    const nomes = cartasSelecionadas.map(i => `• ${negConfig.cartas[i].nome}`);
+    listaEl.innerHTML = nomes.length > 0 ? nomes.join('<br>') : '• Nenhum investimento realizado neste mês.';
+    boxEl.style.display = minhaFuncao === 'Financeiro' ? 'block' : 'none';
+  }
 
   const btnDado = document.getElementById('btn-dado');
   if (btnDado) { btnDado.disabled = true; btnDado.innerHTML = 'Aguardando...'; }
