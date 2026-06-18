@@ -1259,7 +1259,7 @@ body { font-family: var(--font-body); background: var(--cinza-bg); color: var(--
       <div id="popup-prosperidade-status" style="font-size:20px; font-weight:800;">—</div>
       <div id="popup-prosperidade-valor" style="font-family:var(--font-title); font-size:36px; font-weight:900;">—</div>
     </div>
-    <button id="popup-prosperidade-btn" class="btn-primary" style="background:#210000; width:100%;" onclick="document.getElementById('popup-prosperidade').style.display='none'">Fechar</button>
+    <button id="popup-prosperidade-btn" class="btn-primary" style="background:#210000; width:100%;" onclick="window.prosperidadeFechado=true; document.getElementById('popup-prosperidade').style.display='none'">Fechar</button>
   </div>
 </div>
 <script type="module">
@@ -2279,12 +2279,15 @@ if (popupCard) popupCard.style.maxWidth = '500px';
     } else {
       divRanking.style.display = 'none';
       window.rankingFechado = false;
-      window.popupProsperidadeMostrado = false;
+      if (!data.prosperidadeRevelada) {
+        window.popupProsperidadeMostrado = false;
+        window.prosperidadeFechado = false;
+      }
     }
   }
 
   // Popup de Prosperidade — independente do ranking
-  if (data.prosperidadeRevelada && !window.popupProsperidadeMostrado && data.negocios) {
+  if (data.prosperidadeRevelada && !window.popupProsperidadeMostrado && !window.prosperidadeFechado && data.negocios) {
     window.popupProsperidadeMostrado = true;
     const negociosArr = Object.entries(data.negocios).filter(([k]) => NEGOCIOS[k]);
     const somaVc = negociosArr.reduce((acc, [_, val]) => acc + (val.vc || 0), 0);
