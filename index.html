@@ -1797,6 +1797,7 @@ document.getElementById('jogo-funcao-badge').textContent = ' Liderança · Sua n
   } else {
     headerJogo.className = `tela ativa neg-${meuNegocio}`;
     document.getElementById('jogo-negocio-nome').textContent = NEGOCIOS[meuNegocio].nome;
+    document.getElementById('jogo-funcao-badge').textContent = minhaFuncao === 'Liderança' ? ' Liderança' : ' Financeiro';
     // Aviso pro Financeiro no mês 3
     if (rodada === 3 && minhaFuncao === 'Financeiro' && popup && popup.style.display === 'none' && !window.popupRodada3Mostrado) {
       window.popupRodada3Mostrado = true;
@@ -1912,7 +1913,8 @@ if (negData.rodadaStatus === 'confirmado') {
     // Financeiro: abre popup de avaliação uma vez só, se ainda não avaliou
     if (minhaFuncao === 'Financeiro' && !negData.rodadaStatus) {
       const chaveNome = meuNome.replace(/[.#$\[\]]/g, '');
-      const jaAvaliou = negData.votosLideranca?.[chaveNome];
+      const negAvaliadoKey = MAPA_TROCA[meuNegocio] || meuNegocio;
+      const jaAvaliou = data.negocios?.[negAvaliadoKey]?.votosLideranca?.[chaveNome];
       if (!jaAvaliou && !window.popupAvaliacaoAberto) {
         window.popupAvaliacaoAberto = true;
         const barra = document.getElementById('popup-avaliacao-cor-barra');
@@ -1984,7 +1986,16 @@ document.getElementById('popup-nota-recebida-texto').innerHTML =
       }));
       negsArr.sort((a, b) => b.prosper - a.prosper || b.vc - a.vc);
       const updV = {};
-      negsArr.forEach((neg, i) => { updV[`rua/${sessionCode}/negocios/${neg.key}/cartaDesafio`] = i + 1; });
+      negsArr.forEach((neg, i) => {
+        const mult = i + 1;
+        const negDataAtual = data.negocios[neg.key] || {};
+        const caixaAntesV = negDataAtual.caixa || 0;
+        const rendaV = NEGOCIOS[neg.key].rendaBase * mult;
+        updV[`rua/${sessionCode}/negocios/${neg.key}/cartaDesafio`] = mult;
+        updV[`rua/${sessionCode}/negocios/${neg.key}/caixaAnteriorMes`] = caixaAntesV;
+        updV[`rua/${sessionCode}/negocios/${neg.key}/rendaMes`] = rendaV;
+        updV[`rua/${sessionCode}/negocios/${neg.key}/caixa`] = caixaAntesV + rendaV;
+      });
       update(ref(db), updV);
     }
   }
@@ -2147,10 +2158,13 @@ if (negData.transferenciaRecebida && !window.trocouRodada) {
       if (bonusAplicado === meuNegocio) {
         // Este negócio ganhou — seta dado=6 no Firebase (só uma vez)
         if (!negData.dadoAtual) {
-          const caixaBonus = NEGOCIOS[meuNegocio].rendaBase * 6;
+          const caixaAntesBonus = negData.caixa || 0;
+          const rendaBonus = NEGOCIOS[meuNegocio].rendaBase * 6;
           update(ref(db, `rua/${sessionCode}/negocios/${meuNegocio}`), {
             dadoAtual: 6,
-            caixa: (negData.caixa || 0) + caixaBonus
+            caixaAnteriorMes: caixaAntesBonus,
+            rendaMes: rendaBonus,
+            caixa: caixaAntesBonus + rendaBonus
           });
         }
         if (btnD) { btnD.disabled = true; btnD.innerHTML = '🎉 Bônus recebido!'; }
@@ -2391,9 +2405,12 @@ async function atualizarVisaoLider(negData, rodada, fase, bonusAplicado) {
         btnDado.innerHTML = 'Caixa Definido';
     }
 
-    const caixaRodada = NEGOCIOS[window.negocioVigente || meuNegocio].rendaBase * valDadoFinal;
-    atualizarStatusSidebar((negData.caixa || 0), caixaRodada, (negData.caixa || 0) + caixaRodada);
-    mostrarCartas((negData.caixa || 0) + caixaRodada, negData);
+    // Sidebar lê os 3 campos diretamente: Anterior e Mês são só informativos, Disponível é o caixa real
+    const caixaAnteriorMes = negData.caixaAnteriorMes || 0;
+    const rendaMes = negData.rendaMes || 0;
+    const disponivel = negData.caixa || 0;
+    atualizarStatusSidebar(caixaAnteriorMes, rendaMes, disponivel);
+    mostrarCartas(disponivel, negData);
 } else {
     dadoEl.innerHTML = '🎲';
     dadoEl.style.color = '#ffffff';
@@ -2571,12 +2588,9 @@ window.liderDoar = async function() {
   const snap = await get(ref(db, `rua/${sessionCode}/negocios/${negAlvo}`));
   const negData = snap.val() || {};
   
-  const caixaBanco = negData.caixa || 0;
-  const dadoVal = negData.dadoAtual || 0;
-  const caixaRodada = NEGOCIOS[negAlvo].rendaBase * dadoVal;
-  const disponivel = caixaBanco + caixaRodada;
+  const caixaAtual = negData.caixa || 0;
 
-  if (valor > disponivel) { showToast('Caixa insuficiente para transferência!', '#e63946'); return; }
+  if (valor > caixaAtual) { showToast('Caixa insuficiente para transferência!', '#e63946'); return; }
 
   if (minhaFuncao === 'Financeiro') {
     await update(ref(db, `rua/${sessionCode}/negocios/${negAlvo}/transferenciaPendente`), { destino, valor });
@@ -2584,7 +2598,7 @@ window.liderDoar = async function() {
     document.getElementById('popup-transferencia').style.display = 'none';
   } else {
     const snapDest = await get(ref(db, `rua/${sessionCode}/negocios/${destino}`));
-    await update(ref(db, `rua/${sessionCode}/negocios/${negAlvo}`), { caixa: caixaBanco - valor });
+    await update(ref(db, `rua/${sessionCode}/negocios/${negAlvo}`), { caixa: caixaAtual - valor });
     // Registra a transferência recebida para disparar o popup do outro lado!
     await update(ref(db, `rua/${sessionCode}/negocios/${destino}`), { 
         caixa: (snapDest.val()?.caixa || 0) + valor,
@@ -2605,12 +2619,9 @@ window.aprovarTransferencia = async function() {
   const pendente = negData.transferenciaPendente;
   if(!pendente) return;
 
-  const caixaBanco = negData.caixa || 0;
-  const dadoValApr = negData.dadoAtual || 0;
-  const caixaRodadaApr = NEGOCIOS[negAtivo].rendaBase * dadoValApr;
-  const disponivelApr = caixaBanco + caixaRodadaApr;
+  const caixaAtualApr = negData.caixa || 0;
 
-  if (pendente.valor > disponivelApr) {
+  if (pendente.valor > caixaAtualApr) {
     showToast('Caixa insuficiente para aprovar!', '#e63946');
     await update(ref(db, `rua/${sessionCode}/negocios/${negAtivo}/transferenciaPendente`), null);
     return;
@@ -2618,7 +2629,7 @@ window.aprovarTransferencia = async function() {
 
   const snapDest = await get(ref(db, `rua/${sessionCode}/negocios/${pendente.destino}`));
   await update(ref(db, `rua/${sessionCode}/negocios/${negAtivo}`), {
-    caixa: caixaBanco - pendente.valor,
+    caixa: caixaAtualApr - pendente.valor,
     transferenciaPendente: null
   });
   await update(ref(db, `rua/${sessionCode}/negocios/${pendente.destino}`), {
@@ -2745,16 +2756,22 @@ window.rolarDado = async function() {
   }
 
   dadoRolado = val;
-  const caixaRodada = negConfig.rendaBase * val;
-  const caixaTotal = (negDataAtual.caixa || 0) + caixaRodada;
+  const caixaAntes = negDataAtual.caixa || 0;
+  const rendaMes = negConfig.rendaBase * val;
+  const caixaNovo = caixaAntes + rendaMes;
   
-document.getElementById('dado-resultado').innerHTML = renderDado(val);
-  // Limpa o card do dado e foca em atualizar as pílulas de caixa no card do meio
+  document.getElementById('dado-resultado').innerHTML = renderDado(val);
   document.getElementById('dado-caixa-texto').textContent = ''; 
-  atualizarStatusSidebar((negDataAtual.caixa || 0), caixaRodada, caixaTotal);
+  atualizarStatusSidebar(caixaAntes, rendaMes, caixaNovo);
   
-  await update(ref(db, `rua/${sessionCode}/negocios/${negAlvo}`), { dadoAtual: val });
-  mostrarCartas(caixaTotal, negDataAtual);
+  // Renda entra direto no caixa. Salva snapshots informativos.
+  await update(ref(db, `rua/${sessionCode}/negocios/${negAlvo}`), { 
+    dadoAtual: val,
+    caixaAnteriorMes: caixaAntes,
+    rendaMes: rendaMes,
+    caixa: caixaNovo
+  });
+  mostrarCartas(caixaNovo, negDataAtual);
 };
 
 function mostrarCartas(caixaDisponivel, negData) {
@@ -2801,6 +2818,13 @@ function mostrarCartas(caixaDisponivel, negData) {
   }
 
   atualizarVotosCartas(negData);
+  // Repinta as cartas conforme o caixa atual (importante após transferências)
+  neg.cartas.forEach((c, i) => {
+    const el = document.getElementById(`carta-${i}`);
+    if (el && el.dataset.comprada !== 'true') {
+      el.setAttribute('onclick', `toggleCarta(${i}, ${caixaDisponivel})`);
+    }
+  });
   atualizarConfirmarBar(caixaDisponivel);
 }
 
@@ -2837,8 +2861,16 @@ window.toggleCarta = async function(i, caixaDisponivel) {
   const carta = neg.cartas[i];
   const custoAtual = cartasSelecionadas.reduce((s, ci) => s + neg.cartas[ci].custo, 0);
 
+  // Lê o caixa real do momento (Disponível), em vez do valor congelado no onclick
+  const dispEl = document.getElementById('sb-caixa-total');
+  let caixaReal = caixaDisponivel;
+  if (dispEl) {
+    const parsed = parseInt(dispEl.textContent.replace(/[^0-9-]/g, ''));
+    if (!isNaN(parsed)) caixaReal = parsed;
+  }
+
   // Trava de limite de caixa unificada (Liderança e Financeiro)
-  if (idx === -1 && (custoAtual + carta.custo > caixaDisponivel)) {
+  if (idx === -1 && (custoAtual + carta.custo > caixaReal)) {
     showToast('Caixa insuficiente para esta carta!', '#e63946');
     return;
   }
@@ -2921,7 +2953,7 @@ window.confirmarInvestimentos = async function() {
   const vnGanho = cartasSelecionadas.reduce((s, i) => s + negConfig.cartas[i].vn, 0);
   const vcGanho = cartasSelecionadas.reduce((s, i) => s + negConfig.cartas[i].vc, 0);
   const caixaAnterior = negData.caixa || 0;
-  const caixaFinal = caixaAnterior + caixaRodada - custo;
+  const caixaFinal = caixaAnterior - custo;
   const vnTotal = (negData.vn || 0) + vnGanho;
   const vcTotal = (negData.vc || 0) + vcGanho;
 
@@ -3153,7 +3185,14 @@ function atualizarAdmin(data) {
       negsArr.sort((a, b) => b.prosper - a.prosper || b.vc - a.vc);
       const updatesVeredito = {};
       negsArr.forEach((neg, i) => {
-        updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/cartaDesafio`] = i + 1;
+        const mult = i + 1;
+        const negDataAtual = negociosData[neg.key] || {};
+        const caixaAntesV = negDataAtual.caixa || 0;
+        const rendaV = NEGOCIOS[neg.key].rendaBase * mult;
+        updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/cartaDesafio`] = mult;
+        updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/caixaAnteriorMes`] = caixaAntesV;
+        updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/rendaMes`] = rendaV;
+        updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/caixa`] = caixaAntesV + rendaV;
       });
       update(ref(db), updatesVeredito).then(() => {
         adicionarLog(`Mês 5 — Multiplicadores: ${negsArr.map((n,i) => `${NEGOCIOS[n.key]?.nome} x${i+1}`).join(', ')}`);
@@ -3378,7 +3417,17 @@ function atualizarAdmin(data) {
 
 window.aplicarNota = async function(negocio, nota) {
   if (!nota || nota < 1 || nota > 6) { showToast('Nota deve ser entre 1 e 6!', '#e63946'); return; }
-  await update(ref(db, `rua/${sessionCode}/negocios/${negocio}`), { notaRodada: parseInt(nota) });
+  const notaNum = parseInt(nota);
+  const snapNeg = await get(ref(db, `rua/${sessionCode}/negocios/${negocio}`));
+  const negD = snapNeg.val() || {};
+  const caixaAntes = negD.caixa || 0;
+  const renda = NEGOCIOS[negocio].rendaBase * notaNum;
+  await update(ref(db, `rua/${sessionCode}/negocios/${negocio}`), { 
+    notaRodada: notaNum,
+    caixaAnteriorMes: caixaAntes,
+    rendaMes: renda,
+    caixa: caixaAntes + renda
+  });
   await adicionarLog(`Nota ${nota} aplicada para ${NEGOCIOS[negocio].nome}`);
   showToast(`Nota ${nota} aplicada para ${NEGOCIOS[negocio].nome}!`, '#77AD18');
 };
@@ -3504,8 +3553,14 @@ window.avancarRodada = async function() {
       const total = negsArr.length;
       const updatesVeredito = {};
       negsArr.forEach((neg, i) => {
-        // 1º lugar = x1, último = x(total)
-        updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/cartaDesafio`] = i + 1;
+        const mult = i + 1;
+        const negDataAtual = negociosData[neg.key] || {};
+        const caixaAntesV = negDataAtual.caixa || 0;
+        const rendaV = NEGOCIOS[neg.key].rendaBase * mult;
+        updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/cartaDesafio`] = mult;
+        updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/caixaAnteriorMes`] = caixaAntesV;
+        updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/rendaMes`] = rendaV;
+        updatesVeredito[`rua/${sessionCode}/negocios/${neg.key}/caixa`] = caixaAntesV + rendaV;
       });
       await update(ref(db), updatesVeredito);
       await adicionarLog(`Mês 5 — Multiplicadores: ${negsArr.map((n,i) => `${NEGOCIOS[n.key]?.nome} x${i+1}`).join(', ')}`);
@@ -3569,6 +3624,8 @@ async function resetarRodadaNegocios(proxRodada) {
     updates[`rua/${sessionCode}/negocios/${child.key}/votosCartas`] = null;
     updates[`rua/${sessionCode}/negocios/${child.key}/transferenciaRecebida`] = null;
     updates[`rua/${sessionCode}/negocios/${child.key}/transferenciaPendente`] = null;
+    updates[`rua/${sessionCode}/negocios/${child.key}/caixaAnteriorMes`] = null;
+    updates[`rua/${sessionCode}/negocios/${child.key}/rendaMes`] = null;
     if (proxRodada !== 5) updates[`rua/${sessionCode}/negocios/${child.key}/cartaDesafio`] = null;
   });
   await update(ref(db), updates);
